@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: clinica-fisioterapia
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/clinica_fisioterapia_dev
+    username: postgres
+    password: postgres  # ⚠️ Contraseña de tu postgres
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate  # Usa 'validate' porque ya tienes el schema
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  security:
+    user:
+      name: admin
+      password: admin123
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+# JWT Configuration
+jwt:
+  secret: 5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437  # Clave secreta 256-bit
+  expiration: 86400000  # 24 horas en milisegundos
+
+logging:
+  level:
+    com.clinica.fisioterapia: DEBUG
+    org.springframework.security: DEBUG
