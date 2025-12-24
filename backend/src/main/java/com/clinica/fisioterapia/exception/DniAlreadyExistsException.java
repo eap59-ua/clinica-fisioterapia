@@ -1,4 +1,7 @@
 package com.clinica.fisioterapia.exception;
 
-public class DniAlreadyExistsException {
+public class DniAlreadyExistsException extends RuntimeException {
+    public DniAlreadyExistsException(String message) {
+        super(message);
+    }
 }

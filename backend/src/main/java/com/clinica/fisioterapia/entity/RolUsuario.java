@@ -1,4 +1,8 @@
 package com.clinica.fisioterapia.entity;
 
-public class RolUsuario {
+public enum RolUsuario {
+    ADMIN,
+    RECEPCIONISTA,
+    FISIOTERAPEUTA,
+    CLIENTE
 }
