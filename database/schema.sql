@@ -1,6 +1,6 @@
 -- ============================================
 -- SCHEMA: CLÍNICA DE FISIOTERAPIA
--- Versión: 1.0 - PostgreSQL 9.6 Compatible
+-- Versión: 1.1 - PostgreSQL 9.6 Compatible (BIGINT)
 -- Fecha: Diciembre 2025
 -- ============================================
 
@@ -19,63 +19,65 @@ DROP TABLE IF EXISTS administrador CASCADE;
 DROP TABLE IF EXISTS recepcionista CASCADE;
 DROP TABLE IF EXISTS usuario CASCADE;
 
--- Eliminar tipos si existen
+-- Eliminar tipos si existen (ya no se usan)
 DROP TYPE IF EXISTS rol_usuario CASCADE;
 DROP TYPE IF EXISTS estado_cita CASCADE;
 DROP TYPE IF EXISTS tipo_bloqueo CASCADE;
 DROP TYPE IF EXISTS metodo_pago CASCADE;
 DROP TYPE IF EXISTS estado_pago CASCADE;
 
--- Tipos ENUM
-CREATE TYPE rol_usuario AS ENUM ('ADMIN', 'RECEPCIONISTA', 'FISIOTERAPEUTA', 'CLIENTE');
-CREATE TYPE estado_cita AS ENUM ('PENDIENTE', 'COMPLETADA', 'CANCELADA', 'NO_ASISTIO');
-CREATE TYPE tipo_bloqueo AS ENUM ('PERSONAL', 'GLOBAL');
-CREATE TYPE metodo_pago AS ENUM ('TARJETA', 'PAYPAL', 'TRANSFERENCIA', 'EFECTIVO');
-CREATE TYPE estado_pago AS ENUM ('PENDIENTE', 'COMPLETADO', 'FALLIDO', 'REEMBOLSADO');
+-- ============================================
+-- NOTA: Ahora usamos VARCHAR + CHECK constraints
+-- en lugar de ENUMs nativos de PostgreSQL
+-- ============================================
 
 -- ============================================
 -- TABLA PRINCIPAL: USUARIO
 -- ============================================
 CREATE TABLE usuario (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     apellidos VARCHAR(100) NOT NULL,
     dni VARCHAR(9) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     telefono VARCHAR(15),
     password VARCHAR(255) NOT NULL,
-    rol rol_usuario NOT NULL,
+    rol VARCHAR(50) NOT NULL,
     activo BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Validación DNI (PostgreSQL 9.6)
-ALTER TABLE usuario ADD CONSTRAINT chk_dni 
+-- Validación DNI
+ALTER TABLE usuario ADD CONSTRAINT chk_dni
 CHECK (dni ~ '^[0-9]{8}[A-Z]$');
 
--- Validación Email (PostgreSQL 9.6)
-ALTER TABLE usuario ADD CONSTRAINT chk_email 
+-- Validación Email
+ALTER TABLE usuario ADD CONSTRAINT chk_email
 CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$');
+
+-- Validación rol (valores permitidos)
+ALTER TABLE usuario ADD CONSTRAINT chk_rol
+CHECK (rol IN ('ADMIN', 'RECEPCIONISTA', 'FISIOTERAPEUTA', 'CLIENTE'));
 
 -- ============================================
 -- TABLAS HIJAS: PERFILES ESPECÍFICOS
 -- ============================================
 
 CREATE TABLE administrador (
-    usuario_id INT PRIMARY KEY REFERENCES usuario(id) ON DELETE CASCADE,
+    usuario_id BIGINT PRIMARY KEY REFERENCES usuario(id) ON DELETE CASCADE,
     nivel_acceso INT DEFAULT 1,
     departamento VARCHAR(50)
 );
 
 CREATE TABLE recepcionista (
-    usuario_id INT PRIMARY KEY REFERENCES usuario(id) ON DELETE CASCADE,
+    usuario_id BIGINT PRIMARY KEY REFERENCES usuario(id) ON DELETE CASCADE,
     turno VARCHAR(20),
     fecha_contratacion DATE DEFAULT CURRENT_DATE
 );
 
 CREATE TABLE fisioterapeuta (
-    usuario_id INT PRIMARY KEY REFERENCES usuario(id) ON DELETE CASCADE,
+    usuario_id BIGINT PRIMARY KEY REFERENCES usuario(id) ON DELETE CASCADE,
     especialidades VARCHAR(255),
     foto_url VARCHAR(255),
     biografia TEXT,
@@ -88,12 +90,12 @@ ALTER TABLE fisioterapeuta ADD CONSTRAINT chk_valoracion
 CHECK (valoracion_promedio >= 0 AND valoracion_promedio <= 5);
 
 CREATE TABLE cliente (
-    usuario_id INT PRIMARY KEY REFERENCES usuario(id) ON DELETE CASCADE,
+    usuario_id BIGINT PRIMARY KEY REFERENCES usuario(id) ON DELETE CASCADE,
     direccion VARCHAR(255),
     fecha_nacimiento DATE
 );
 
--- Validación mayor de edad (PostgreSQL 9.6 compatible)
+-- Validación mayor de edad
 ALTER TABLE cliente ADD CONSTRAINT chk_mayor_edad 
 CHECK (fecha_nacimiento <= CURRENT_DATE - INTERVAL '18 years');
 
@@ -102,7 +104,7 @@ CHECK (fecha_nacimiento <= CURRENT_DATE - INTERVAL '18 years');
 -- ============================================
 
 CREATE TABLE sala (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     nombre VARCHAR(50) NOT NULL UNIQUE,
     capacidad INT DEFAULT 1,
     equipamiento TEXT,
@@ -112,7 +114,7 @@ CREATE TABLE sala (
 ALTER TABLE sala ADD CONSTRAINT chk_capacidad CHECK (capacidad > 0);
 
 CREATE TABLE servicio (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     descripcion TEXT,
     duracion_minutos INT NOT NULL,
@@ -129,7 +131,7 @@ ALTER TABLE servicio ADD CONSTRAINT chk_precio CHECK (precio >= 0);
 -- ============================================
 
 CREATE TABLE horario_clinica (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     dia_semana INT NOT NULL,
     hora_apertura TIME NOT NULL,
     hora_cierre TIME NOT NULL,
@@ -143,31 +145,35 @@ ALTER TABLE horario_clinica ADD CONSTRAINT chk_horario
 CHECK (hora_apertura < hora_cierre);
 
 CREATE TABLE bloqueo_horario (
-    id SERIAL PRIMARY KEY,
-    fisioterapeuta_id INT REFERENCES fisioterapeuta(usuario_id) ON DELETE CASCADE,
+    id BIGSERIAL PRIMARY KEY,
+    fisioterapeuta_id BIGINT REFERENCES fisioterapeuta(usuario_id) ON DELETE CASCADE,
     fecha_inicio TIMESTAMP NOT NULL,
     fecha_fin TIMESTAMP NOT NULL,
     motivo VARCHAR(255),
-    tipo tipo_bloqueo DEFAULT 'PERSONAL'
+    tipo VARCHAR(20) DEFAULT 'PERSONAL'
 );
 
-ALTER TABLE bloqueo_horario ADD CONSTRAINT chk_fechas_bloqueo 
+ALTER TABLE bloqueo_horario ADD CONSTRAINT chk_fechas_bloqueo
 CHECK (fecha_inicio < fecha_fin);
+
+-- Validación tipo bloqueo
+ALTER TABLE bloqueo_horario ADD CONSTRAINT chk_tipo_bloqueo
+CHECK (tipo IN ('PERSONAL', 'GLOBAL'));
 
 -- ============================================
 -- SISTEMA DE CITAS
 -- ============================================
 
 CREATE TABLE cita (
-    id SERIAL PRIMARY KEY,
-    cliente_id INT NOT NULL REFERENCES cliente(usuario_id) ON DELETE CASCADE,
-    fisioterapeuta_id INT NOT NULL REFERENCES fisioterapeuta(usuario_id) ON DELETE RESTRICT,
-    servicio_id INT NOT NULL REFERENCES servicio(id) ON DELETE RESTRICT,
-    sala_id INT REFERENCES sala(id) ON DELETE SET NULL,
+    id BIGSERIAL PRIMARY KEY,
+    cliente_id BIGINT NOT NULL REFERENCES cliente(usuario_id) ON DELETE CASCADE,
+    fisioterapeuta_id BIGINT NOT NULL REFERENCES fisioterapeuta(usuario_id) ON DELETE RESTRICT,
+    servicio_id BIGINT NOT NULL REFERENCES servicio(id) ON DELETE RESTRICT,
+    sala_id BIGINT REFERENCES sala(id) ON DELETE SET NULL,
     fecha DATE NOT NULL,
     hora_inicio TIME NOT NULL,
     hora_fin TIME NOT NULL,
-    estado estado_cita DEFAULT 'PENDIENTE',
+    estado VARCHAR(20) DEFAULT 'PENDIENTE',
     notas TEXT,
     precio_pagado DECIMAL(10,2),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -175,12 +181,15 @@ CREATE TABLE cita (
 );
 
 ALTER TABLE cita ADD CONSTRAINT chk_horas_cita CHECK (hora_inicio < hora_fin);
--- ALTER TABLE cita ADD CONSTRAINT chk_fecha_futura CHECK (fecha >= CURRENT_DATE);
+
+-- Validación estado cita
+ALTER TABLE cita ADD CONSTRAINT chk_estado_cita
+CHECK (estado IN ('PENDIENTE', 'COMPLETADA', 'CANCELADA', 'NO_ASISTIO'));
 
 CREATE TABLE nota_sesion (
-    id SERIAL PRIMARY KEY,
-    cita_id INT UNIQUE NOT NULL REFERENCES cita(id) ON DELETE CASCADE,
-    fisioterapeuta_id INT NOT NULL REFERENCES fisioterapeuta(usuario_id) ON DELETE CASCADE,
+    id BIGSERIAL PRIMARY KEY,
+    cita_id BIGINT UNIQUE NOT NULL REFERENCES cita(id) ON DELETE CASCADE,
+    fisioterapeuta_id BIGINT NOT NULL REFERENCES fisioterapeuta(usuario_id) ON DELETE CASCADE,
     contenido TEXT NOT NULL,
     privada BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -191,11 +200,11 @@ CREATE TABLE nota_sesion (
 -- ============================================
 
 CREATE TABLE pago (
-    id SERIAL PRIMARY KEY,
-    cita_id INT REFERENCES cita(id) ON DELETE SET NULL,
+    id BIGSERIAL PRIMARY KEY,
+    cita_id BIGINT REFERENCES cita(id) ON DELETE SET NULL,
     monto DECIMAL(10,2) NOT NULL,
-    metodo metodo_pago NOT NULL,
-    estado estado_pago DEFAULT 'PENDIENTE',
+    metodo VARCHAR(20) NOT NULL,
+    estado VARCHAR(20) DEFAULT 'PENDIENTE',
     transaccion_id VARCHAR(100) UNIQUE,
     descripcion VARCHAR(255),
     fecha_pago TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -203,12 +212,20 @@ CREATE TABLE pago (
 
 ALTER TABLE pago ADD CONSTRAINT chk_monto CHECK (monto > 0);
 
+-- Validación método pago
+ALTER TABLE pago ADD CONSTRAINT chk_metodo_pago
+CHECK (metodo IN ('TARJETA', 'PAYPAL', 'TRANSFERENCIA', 'EFECTIVO'));
+
+-- Validación estado pago
+ALTER TABLE pago ADD CONSTRAINT chk_estado_pago
+CHECK (estado IN ('PENDIENTE', 'COMPLETADO', 'FALLIDO', 'REEMBOLSADO'));
+
 -- ============================================
 -- TIENDA ONLINE
 -- ============================================
 
 CREATE TABLE producto (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     descripcion TEXT,
     precio DECIMAL(10,2) NOT NULL,
@@ -236,7 +253,7 @@ CREATE INDEX idx_bloqueo_fechas ON bloqueo_horario(fecha_inicio, fecha_fin);
 CREATE INDEX idx_bloqueo_fisio ON bloqueo_horario(fisioterapeuta_id);
 
 -- ============================================
--- TRIGGERS (PostgreSQL 9.6)
+-- TRIGGERS
 -- ============================================
 
 -- Función para actualizar timestamp
