@@ -40,6 +40,18 @@ const router = createRouter({
       component: () => import("../views/cliente/Dashboard.vue"),
       meta: { requiresAuth: true, role: "CLIENTE" },
     },
+    {
+      path: "/cliente/reservar-cita",
+      name: "reservar-cita",
+      component: () => import("../views/cliente/ReservarCita.vue"),
+      meta: { requiresAuth: true, role: "CLIENTE" },
+    },
+    {
+      path: "/cliente/mis-citas",
+      name: "mis-citas",
+      component: () => import("../views/cliente/MisCitas.vue"),
+      meta: { requiresAuth: true, role: "CLIENTE" },
+    },
   ],
 });
 
