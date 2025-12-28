@@ -35,4 +35,20 @@ public interface CitaRepository extends JpaRepository<Cita, Long> {
     // Obtener citas de un fisioterapeuta en una fecha
     @Query("SELECT c FROM Cita c WHERE c.fisioterapeuta.id = :fisioId AND c.fecha = :fecha AND c.estado != 'CANCELADA' ORDER BY c.horaInicio")
     List<Cita> findCitasFisioterapeutaEnFecha(@Param("fisioId") Long fisioId, @Param("fecha") LocalDate fecha);
+
+    @Query("SELECT c FROM Cita c " +
+            "JOIN FETCH c.cliente " +
+            "JOIN FETCH c.fisioterapeuta " +
+            "JOIN FETCH c.servicio " +
+            "WHERE c.fecha = :fecha " +
+            "ORDER BY c.horaInicio ASC")
+    List<Cita> findAllByFecha(@Param("fecha") LocalDate fecha);
+
+    @Query("SELECT c FROM Cita c " +
+            "JOIN FETCH c.cliente " +
+            "JOIN FETCH c.fisioterapeuta " +
+            "JOIN FETCH c.servicio " +
+            "WHERE c.fecha BETWEEN :inicio AND :fin " +
+            "ORDER BY c.fecha ASC, c.horaInicio ASC")
+    List<Cita> findByFechaBetween(@Param("inicio") LocalDate inicio, @Param("fin") LocalDate fin);
 }
