@@ -74,7 +74,9 @@ const handleLogin = async () => {
 
   try {
     await authStore.login(formData.value);
-    router.push("/cliente");
+    if(authStore.userRole == "CLIENTE") router.push("/cliente");
+    else if(authStore.userRole == "RECEPCIONISTA") router.push("/recepcionista");
+    else router.push("/");
   } catch (err) {
     error.value = err.response?.data?.message || "Error al iniciar sesión";
   } finally {

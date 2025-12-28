@@ -1,0 +1,32 @@
+import api from './api';
+
+export default {
+  getClientes() {
+    return api.get('/recepcionista/clientes'); // O la ruta donde tengas listado de clientes
+  },
+  getFisioterapeutas() {
+    return api.get('/recepcionista/fisioterapeutas'); // Filtrar por activos si es posible
+  },
+  getServicios() {
+    return api.get('/recepcionista/servicios');
+  },
+  getSalas() {
+    return api.get('/recepcionista/salas');
+  },
+
+  getCitasDia(fecha) {
+    return api.get(`/recepcionista/citas/dia?fecha=${fecha}`);
+  },
+
+  getCitasSemana(fecha) {
+    return api.get(`/recepcionista/citas/semana?fecha=${fecha}`);
+  },
+
+  crearCita(citaData) {
+    return api.post('/recepcionista/citas', citaData);
+  },
+
+  cambiarEstado(id, estado) {
+    return api.put(`/recepcionista/citas/${id}/estado?estado=${estado}`);
+  }
+};
