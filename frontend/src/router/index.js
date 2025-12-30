@@ -52,6 +52,28 @@ const router = createRouter({
       component: () => import("../views/cliente/MisCitas.vue"),
       meta: { requiresAuth: true, role: "CLIENTE" },
     },
+    {
+      path: "/recepcionista",
+      redirect: "/recepcionista/dashboard"
+    },
+    {
+      path: "/recepcionista/dashboard",
+      name: "recepcionista-dashboard",
+      component: () => import("../views/recepcionista/Dashboard.vue"),
+      meta: { requiresAuth: true, role: "RECEPCIONISTA" },
+    },
+    {
+      path: "/recepcionista/citas-management",
+      name: "recepcionista-calendario",
+      component: () => import("../views/recepcionista/CitasManagement.vue"),
+      meta: { requiresAuth: true, role: "RECEPCIONISTA" },
+    },
+    {
+      path: "/recepcionista/crear-cita",
+      name: "recepcionista-crear",
+      component: () => import("../views/recepcionista/CrearCita.vue"),
+      meta: { requiresAuth: true, role: "RECEPCIONISTA" },
+    },
   ],
 });
 
