@@ -44,19 +44,32 @@
         <h2 class="text-2xl font-bold mb-6">Acciones Rápidas</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <button
-            class="bg-primary text-white py-3 px-6 rounded-lg hover:bg-blue-600 transition"
+            @click="$router.push('/cliente/reservar-cita')"
+            class="flex items-center justify-center gap-2 bg-teal-500 text-white py-3 px-4 rounded-lg hover:bg-teal-600 transition"
           >
-            📅 Reservar Cita
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Reservar Cita
           </button>
+
           <button
-            class="bg-secondary text-white py-3 px-6 rounded-lg hover:bg-green-600 transition"
+            @click="$router.push('/cliente/mis-citas')"
+            class="flex items-center justify-center gap-2 bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 transition"
           >
-            📋 Ver Mis Citas
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            Ver Mis Citas
           </button>
+
           <button
-            class="bg-gray-600 text-white py-3 px-6 rounded-lg hover:bg-gray-700 transition"
+            class="flex items-center justify-center gap-2 bg-gray-500 text-white py-3 px-4 rounded-lg hover:bg-gray-600 transition"
           >
-            👤 Editar Perfil
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            Editar Perfil
           </button>
         </div>
       </div>
