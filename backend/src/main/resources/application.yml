@@ -5,7 +5,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5433/clinica_fisioterapia_dev
     username: postgres
-    password: postgres  # ⚠️ Contraseña de tu postgres
+    password: administrador  # ⚠️ Contraseña de tu postgres
     driver-class-name: org.postgresql.Driver
 
   jpa:
