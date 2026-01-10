@@ -74,6 +74,34 @@ const router = createRouter({
       component: () => import("../views/recepcionista/CrearCita.vue"),
       meta: { requiresAuth: true, role: "RECEPCIONISTA" },
     },
+    {
+      path: "/fisioterapeuta",
+      redirect: "/fisioterapeuta/dashboard"
+    },
+    {
+      path: "/fisioterapeuta/dashboard",
+      name: "fisioterapeuta-dashboard",
+      component: () => import("../views/fisioterapeuta/Dashboard.vue"),
+      meta: { requiresAuth: true, role: "FISIOTERAPEUTA" },
+    },
+    {
+      path: "/fisioterapeuta/agenda",
+      name: "fisioterapeuta-agenda",
+      component: () => import("../views/fisioterapeuta/AgendaSemanal.vue"),
+      meta: { requiresAuth: true, role: "FISIOTERAPEUTA" },
+    },
+    {
+      path: "/fisioterapeuta/citas/:id",
+      name: "fisioterapeuta-detalle-cita",
+      component: () => import("../views/fisioterapeuta/DetalleCita.vue"),
+      meta: { requiresAuth: true, role: "FISIOTERAPEUTA" },
+    },
+    {
+      path: "/fisioterapeuta/clientes/:id/historial",
+      name: "fisioterapeuta-historial-cliente",
+      component: () => import("../views/fisioterapeuta/HistorialCliente.vue"),
+      meta: { requiresAuth: true, role: "FISIOTERAPEUTA" },
+    },
   ],
 });
 
