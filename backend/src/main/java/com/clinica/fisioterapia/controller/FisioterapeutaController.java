@@ -34,7 +34,7 @@ public class FisioterapeutaController {
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
 
-        Long fisioterapeutaId = usuario.getFisioterapeuta().getId();
+        Long fisioterapeutaId = usuario.getId();
         List<CitaDTO> citas = fisioterapeutaService.getMisCitas(fisioterapeutaId, fecha);
         return ResponseEntity.ok(citas);
     }
@@ -45,7 +45,7 @@ public class FisioterapeutaController {
      */
     @GetMapping("/citas/hoy")
     public ResponseEntity<List<CitaDTO>> getMisCitasHoy(@AuthenticationPrincipal Usuario usuario) {
-        Long fisioterapeutaId = usuario.getFisioterapeuta().getId();
+        Long fisioterapeutaId = usuario.getId();
         List<CitaDTO> citas = fisioterapeutaService.getMisCitasHoy(fisioterapeutaId);
         return ResponseEntity.ok(citas);
     }
@@ -60,7 +60,7 @@ public class FisioterapeutaController {
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio) {
 
-        Long fisioterapeutaId = usuario.getFisioterapeuta().getId();
+        Long fisioterapeutaId = usuario.getId();
 
         // Si no se proporciona fecha, usar el lunes de esta semana
         LocalDate inicio = fechaInicio != null ? fechaInicio : obtenerLunesSemanaActual();
@@ -78,7 +78,7 @@ public class FisioterapeutaController {
             @PathVariable Long id,
             @AuthenticationPrincipal Usuario usuario) {
 
-        Long fisioterapeutaId = usuario.getFisioterapeuta().getId();
+        Long fisioterapeutaId = usuario.getId();
         CitaDTO cita = fisioterapeutaService.getDetalleCita(id, fisioterapeutaId);
         return ResponseEntity.ok(cita);
     }
@@ -92,7 +92,7 @@ public class FisioterapeutaController {
             @PathVariable Long id,
             @AuthenticationPrincipal Usuario usuario) {
 
-        Long fisioterapeutaId = usuario.getFisioterapeuta().getId();
+        Long fisioterapeutaId = usuario.getId();
         CitaDTO cita = fisioterapeutaService.marcarComoCompletada(id, fisioterapeutaId);
         return ResponseEntity.ok(cita);
     }
@@ -107,7 +107,7 @@ public class FisioterapeutaController {
             @Valid @RequestBody CrearNotaSesionRequest request,
             @AuthenticationPrincipal Usuario usuario) {
 
-        Long fisioterapeutaId = usuario.getFisioterapeuta().getId();
+        Long fisioterapeutaId = usuario.getId();
         request.setCitaId(id); // Asegurar que el ID coincide con la ruta
 
         NotaSesionDTO nota = fisioterapeutaService.crearOActualizarNota(id, request, fisioterapeutaId);
@@ -123,7 +123,7 @@ public class FisioterapeutaController {
             @PathVariable Long id,
             @AuthenticationPrincipal Usuario usuario) {
 
-        Long fisioterapeutaId = usuario.getFisioterapeuta().getId();
+        Long fisioterapeutaId = usuario.getId();
         NotaSesionDTO nota = fisioterapeutaService.getNotaDeCita(id, fisioterapeutaId);
         return ResponseEntity.ok(nota);
     }
@@ -137,7 +137,7 @@ public class FisioterapeutaController {
             @PathVariable Long clienteId,
             @AuthenticationPrincipal Usuario usuario) {
 
-        Long fisioterapeutaId = usuario.getFisioterapeuta().getId();
+        Long fisioterapeutaId = usuario.getId();
         List<HistorialClienteDTO> historial = fisioterapeutaService.getHistorialCliente(clienteId, fisioterapeutaId);
         return ResponseEntity.ok(historial);
     }
