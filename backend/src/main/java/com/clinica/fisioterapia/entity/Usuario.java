@@ -2,6 +2,7 @@ package com.clinica.fisioterapia.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -15,6 +16,7 @@ import java.util.List;
 @Entity
 @Table(name = "usuario")
 @Data
+@Builder  // ← Esta genera el patrón Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -84,6 +86,11 @@ public class Usuario implements UserDetails {
     @Override
     public boolean isEnabled() {
         return activo;
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
     }
 
     @PreUpdate

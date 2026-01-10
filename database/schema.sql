@@ -4,6 +4,7 @@
 -- Fecha: Diciembre 2025
 -- ============================================
 
+
 -- Eliminar tablas si existen
 DROP TABLE IF EXISTS nota_sesion CASCADE;
 DROP TABLE IF EXISTS pago CASCADE;
@@ -86,7 +87,7 @@ CREATE TABLE fisioterapeuta (
 );
 
 -- Validación valoración
-ALTER TABLE fisioterapeuta ADD CONSTRAINT chk_valoracion 
+ALTER TABLE fisioterapeuta ADD CONSTRAINT chk_valoracion
 CHECK (valoracion_promedio >= 0 AND valoracion_promedio <= 5);
 
 CREATE TABLE cliente (
@@ -96,7 +97,7 @@ CREATE TABLE cliente (
 );
 
 -- Validación mayor de edad
-ALTER TABLE cliente ADD CONSTRAINT chk_mayor_edad 
+ALTER TABLE cliente ADD CONSTRAINT chk_mayor_edad
 CHECK (fecha_nacimiento <= CURRENT_DATE - INTERVAL '18 years');
 
 -- ============================================
@@ -138,10 +139,10 @@ CREATE TABLE horario_clinica (
     CONSTRAINT uq_dia UNIQUE (dia_semana)
 );
 
-ALTER TABLE horario_clinica ADD CONSTRAINT chk_dia_semana 
+ALTER TABLE horario_clinica ADD CONSTRAINT chk_dia_semana
 CHECK (dia_semana >= 0 AND dia_semana <= 6);
 
-ALTER TABLE horario_clinica ADD CONSTRAINT chk_horario 
+ALTER TABLE horario_clinica ADD CONSTRAINT chk_horario
 CHECK (hora_apertura < hora_cierre);
 
 CREATE TABLE bloqueo_horario (
@@ -279,7 +280,7 @@ FOR EACH ROW EXECUTE PROCEDURE update_timestamp();
 -- ============================================
 
 CREATE OR REPLACE VIEW v_citas_pendientes AS
-SELECT 
+SELECT
     c.id,
     c.fecha,
     c.hora_inicio,
