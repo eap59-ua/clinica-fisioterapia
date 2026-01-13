@@ -43,7 +43,7 @@
           <div class="mb-4">
             <label class="block text-gray-700 text-sm font-bold mb-2">Rol</label>
             <select v-model="form.rol" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-              <option value="PACIENTE">Paciente</option>
+              <option value="CLIENTE">Paciente / Cliente</option>
               <option value="FISIOTERAPEUTA">Fisioterapeuta</option>
               <option value="RECEPCIONISTA">Recepcionista</option>
               <option value="ADMIN">Administrador</option>
@@ -86,7 +86,7 @@ const form = reactive({
   dni: '',
   telefono: '',
   password: '',
-  rol: 'PACIENTE',
+  rol: 'CLIENTE', // CAMBIADO: Valor por defecto correcto
   activo: true
 });
 
@@ -95,21 +95,22 @@ watch(() => props.usuario, (newVal) => {
   if (newVal && newVal.id) {
     // Modo Edición: Copiamos los datos
     Object.assign(form, newVal);
-    form.password = ''; // Limpiamos password para no sobreescribirla accidentalmente
+    form.password = '';
   } else {
-    // Modo Crear: Limpiamos todo
+    // Modo Crear: Limpiamos todo y ponemos valores por defecto
     form.nombre = '';
     form.apellidos = '';
     form.email = '';
     form.dni = '';
     form.telefono = '';
     form.password = '';
-    form.rol = 'PACIENTE';
+    form.rol = 'CLIENTE'; // CAMBIADO
     form.activo = true;
   }
 });
 
 const guardar = () => {
+  // Enviamos una copia de los datos
   emit('save', { ...form });
 };
 </script>
