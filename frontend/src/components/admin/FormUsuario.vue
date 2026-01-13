@@ -104,7 +104,7 @@ watch(() => props.usuario, (newVal) => {
     form.dni = '';
     form.telefono = '';
     form.password = '';
-    form.rol = 'CLIENTE'; // CAMBIADO//
+    form.rol = 'CLIENTE'; // CAMBIADO
     form.activo = true;
   }
 });
