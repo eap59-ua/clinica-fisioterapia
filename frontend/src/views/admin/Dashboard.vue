@@ -19,11 +19,20 @@
 
     <div class="mt-8">
       <h2 class="text-xl font-bold mb-4">Accesos Rápidos</h2>
-      <div class="flex gap-4">
-        <router-link to="/admin/usuarios" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+      <div class="flex gap-4 flex-wrap">
+
+        <router-link to="/admin/usuarios" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
           Gestionar Usuarios
         </router-link>
-        <button class="bg-gray-400 text-white px-4 py-2 rounded cursor-not-allowed">Gestionar Servicios (Próximamente)</button>
+
+        <router-link to="/admin/servicios" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+          Gestionar Servicios
+        </router-link>
+
+        <router-link to="/admin/salas" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+          Gestionar Salas
+        </router-link>
+
       </div>
     </div>
   </div>
