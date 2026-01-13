@@ -1,50 +1,86 @@
 package com.clinica.fisioterapia.service;
 
-import com.clinica.fisioterapia.dto.AuthResponse;
-import com.clinica.fisioterapia.dto.LoginRequest;
-import com.clinica.fisioterapia.dto.RegisterRequest;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import com.clinica.fisioterapia.entity.Usuario;
+import com.clinica.fisioterapia.repository.UsuarioRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
 import java.util.List;
 
 @Service
 public class AdminService {
 
-    // Método básico solicitado en la planificación
-    public List<Object> getUsersList() {
-        // TODO: En el siguiente paso implementaremos la lógica real con el Repositorio
-        return Collections.emptyList();
+    private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    public AdminService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
+        this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    @RestController
-    @RequestMapping("/auth")
-    @RequiredArgsConstructor
-    public static class AuthController {
+    // 1. LISTAR TODOS (GET)
+    // Usamos findAll para ver tanto activos como inactivos en el panel de admin
+    public List<Usuario> getUsersList() {
+        return usuarioRepository.findAll();
+    }
 
-        private final AuthService authService;
-
-        @PostMapping("/register")
-        public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
-            AuthResponse response = authService.register(request);
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
+    // 2. CREAR (POST)
+    public Usuario crearUsuario(Usuario usuario) {
+        // Validamos Email
+        if (usuarioRepository.existsByEmail(usuario.getEmail())) {
+            throw new RuntimeException("El email ya está registrado");
+        }
+        // Validamos DNI (Aprovechando tu repositorio)
+        if (usuarioRepository.existsByDni(usuario.getDni())) {
+            throw new RuntimeException("El DNI ya está registrado");
         }
 
-        @PostMapping("/login")
-        public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
-            AuthResponse response = authService.login(request);
-            return ResponseEntity.ok(response);
+        // Encriptar contraseña
+        usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+
+        // Asegurar que se crea activo por defecto (si tu lógica lo requiere)
+        usuario.setActivo(true);
+
+        return usuarioRepository.save(usuario);
+    }
+
+    // 3. EDITAR (PUT)
+    public Usuario actualizarUsuario(Long id, Usuario datosNuevos) {
+        Usuario usuarioActual = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        // Actualizar datos básicos
+        usuarioActual.setNombre(datosNuevos.getNombre());
+        usuarioActual.setApellidos(datosNuevos.getApellidos());
+        usuarioActual.setEmail(datosNuevos.getEmail());
+        usuarioActual.setDni(datosNuevos.getDni());
+        usuarioActual.setTelefono(datosNuevos.getTelefono()); // Asumo que tienes teléfono en la entidad
+
+        // Actualizar Rol (Usando tu Enum RolUsuario)
+        usuarioActual.setRol(datosNuevos.getRol());
+
+        // Actualizar estado activo/inactivo
+        usuarioActual.setActivo(datosNuevos.isActivo());
+
+        // Solo cambiamos contraseña si viene una nueva y no está vacía
+        if (datosNuevos.getPassword() != null && !datosNuevos.getPassword().isEmpty()) {
+            usuarioActual.setPassword(passwordEncoder.encode(datosNuevos.getPassword()));
         }
 
-        public static class AdminController {
+        return usuarioRepository.save(usuarioActual);
+    }
+
+    // 4. ELIMINAR (DELETE)
+    public void eliminarUsuario(Long id) {
+        if (!usuarioRepository.existsById(id)) {
+            throw new RuntimeException("Usuario no encontrado");
         }
+        // Aquí podrías optar por borrado lógico:
+        // Usuario u = usuarioRepository.findById(id).get();
+        // u.setActivo(false);
+        // usuarioRepository.save(u);
+
+        // O borrado físico (lo que pide el CRUD estándar):
+        usuarioRepository.deleteById(id);
     }
 }
