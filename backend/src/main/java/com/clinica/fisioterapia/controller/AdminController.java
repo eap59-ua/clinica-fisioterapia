@@ -9,7 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/usuarios")
-// @CrossOrigin(origins = "http://localhost:5173") // Descomenta si tienes problemas de CORS con Vue
+@CrossOrigin(origins = "http://localhost:5173") // <--- ¡AQUÍ ESTABA LA CLAVE! (Descomentado)
 public class AdminController {
 
     private final AdminService adminService;
@@ -49,7 +49,7 @@ public class AdminController {
     public ResponseEntity<?> eliminarUsuario(@PathVariable Long id) {
         try {
             adminService.eliminarUsuario(id);
-            return ResponseEntity.ok("Usuario eliminado correctamente"); // Respuesta simple texto
+            return ResponseEntity.ok("Usuario eliminado correctamente");
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
