@@ -60,8 +60,7 @@ public class AdminService {
         usuarioActual.setRol(datosNuevos.getRol());
 
         // Actualizar estado activo/inactivo
-        usuarioActual.setActivo(datosNuevos.isActivo());
-
+        usuarioActual.setActivo(datosNuevos.getActivo()); // <-- ESTO FUNCIONA
         // Solo cambiamos contraseña si viene una nueva y no está vacía
         if (datosNuevos.getPassword() != null && !datosNuevos.getPassword().isEmpty()) {
             usuarioActual.setPassword(passwordEncoder.encode(datosNuevos.getPassword()));
