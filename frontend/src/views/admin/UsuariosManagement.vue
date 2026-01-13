@@ -1,6 +1,71 @@
+<template>
+  <div class="usuarios-management p-4 min-h-screen">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold text-gray-800">Gestión de Usuarios</h1>
+      <button @click="abrirModalCrear" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition duration-200">
+        + Nuevo Usuario
+      </button>
+    </div>
+
+    <div class="overflow-x-auto bg-white shadow-md rounded-lg">
+      <table class="min-w-full leading-normal">
+        <thead>
+        <tr>
+          <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
+          <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Usuario</th>
+          <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">DNI / Email</th>
+          <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Rol</th>
+          <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Estado</th>
+          <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="usuario in usuarios" :key="usuario.id">
+          <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">{{ usuario.id }}</td>
+          <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+            <p class="text-gray-900 font-bold whitespace-no-wrap">{{ usuario.nombre }} {{ usuario.apellidos }}</p>
+          </td>
+          <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+            <p class="text-gray-900 whitespace-no-wrap">{{ usuario.dni }}</p>
+            <p class="text-gray-600 text-xs">{{ usuario.email }}</p>
+          </td>
+          <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+              <span class="relative inline-block px-3 py-1 font-semibold leading-tight text-blue-900">
+                <span aria-hidden class="absolute inset-0 bg-blue-200 opacity-50 rounded-full"></span>
+                <span class="relative text-xs">{{ usuario.rol }}</span>
+              </span>
+          </td>
+          <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+            <span v-if="usuario.activo" class="text-green-600 font-bold text-xs">Activo</span>
+            <span v-else class="text-red-600 font-bold text-xs">Inactivo</span>
+          </td>
+          <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+            <button @click="abrirModalEditar(usuario)" class="text-blue-600 hover:text-blue-900 mr-3">Editar</button>
+            <button @click="eliminarUsuario(usuario.id)" class="text-red-600 hover:text-red-900">Eliminar</button>
+          </td>
+        </tr>
+        <tr v-if="usuarios.length === 0">
+          <td colspan="6" class="px-5 py-5 border-b border-gray-200 bg-white text-sm text-center text-gray-500">
+            No se han encontrado usuarios o no hay conexión.
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <FormUsuario
+        :show="mostrarModal"
+        :usuario="usuarioEditando"
+        @close="mostrarModal = false"
+        @save="guardarUsuario"
+    />
+  </div>
+</template>
+
 <script setup>
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
+// Asegúrate de que esta ruta es correcta. Si FormUsuario está en components/admin, esto debería funcionar:
 import FormUsuario from '@/components/admin/FormUsuario.vue';
 
 const usuarios = ref([]);
@@ -9,9 +74,9 @@ const usuarioEditando = ref({});
 
 const API_URL = 'http://localhost:8080/api/admin/usuarios';
 
-// Función auxiliar para obtener la configuración con el Token
+// Configuración del Header con Token
 const getAuthConfig = () => {
-  const token = localStorage.getItem('token'); // Ojo: verifica si Erardo guardó el token como 'token' o 'jwt'
+  const token = localStorage.getItem('token');
   return {
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -27,38 +92,39 @@ const cargarUsuarios = async () => {
     usuarios.value = response.data;
   } catch (error) {
     console.error('Error cargando usuarios:', error);
+    // Si falla la autorización, redirigimos al login (opcional)
+    if (error.response && error.response.status === 403) {
+      console.warn("Token inválido o expirado");
+    }
   }
 };
 
-// Abrir modal para CREAR
+// Abrir modal CREAR
 const abrirModalCrear = () => {
   usuarioEditando.value = {};
   mostrarModal.value = true;
 };
 
-// Abrir modal para EDITAR
+// Abrir modal EDITAR
 const abrirModalEditar = (usuario) => {
   usuarioEditando.value = { ...usuario };
   mostrarModal.value = true;
 };
 
-// Guardar (Crear o Editar)
+// Guardar
 const guardarUsuario = async (datosUsuario) => {
   try {
     if (usuarioEditando.value.id) {
-      // EDITAR (PUT) - Pasamos la configuración como tercer parámetro
       await axios.put(`${API_URL}/${usuarioEditando.value.id}`, datosUsuario, getAuthConfig());
     } else {
-      // CREAR (POST) - Pasamos la configuración como tercer parámetro
       await axios.post(API_URL, datosUsuario, getAuthConfig());
     }
 
     await cargarUsuarios();
     mostrarModal.value = false;
-    alert('Operación realizada con éxito'); // Feedback positivo
+    alert('Operación realizada con éxito');
   } catch (error) {
     console.error('Error al guardar:', error);
-    // Intentamos mostrar el mensaje exacto del backend (ej: "El email ya existe")
     if (error.response) {
       alert(`Error: ${error.response.data}`);
     } else {

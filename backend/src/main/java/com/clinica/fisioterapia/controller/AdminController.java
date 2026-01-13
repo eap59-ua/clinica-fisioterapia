@@ -8,8 +8,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/admin/usuarios")
-@CrossOrigin(origins = "http://localhost:5173") // <--- ¡AQUÍ ESTABA LA CLAVE! (Descomentado)
+// CORRECCIÓN: Quitamos "/api" porque tu proyecto ya lo añade globalmente
+@RequestMapping("/admin/usuarios")
+@CrossOrigin(origins = "http://localhost:5173")
 public class AdminController {
 
     private final AdminService adminService;
