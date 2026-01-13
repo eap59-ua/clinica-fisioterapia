@@ -106,7 +106,7 @@ const guardarUsuario = async (datosUsuario) => {
     alert('Operación realizada con éxito');
   } catch (error) {
     console.error('Error al guardar:', error);
-    // Mostrar mensaje de error del backend (ej: "Email repetido")
+    // Mostrar mensaje de error del backend (ej: "Email repetido"
     alert(error.response?.data || 'Error al guardar usuario');
   }
 };
