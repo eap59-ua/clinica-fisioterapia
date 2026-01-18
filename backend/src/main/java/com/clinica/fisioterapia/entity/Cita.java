@@ -56,6 +56,13 @@ public class Cita {
     @Column(name = "precio_pagado", precision = 10, scale = 2)
     private BigDecimal precioPagado;
 
+    // Campos para integración con TPV
+    @Column(name = "transaccion_tpv_id", length = 100)
+    private String transaccionTpvId;
+
+    @Column(name = "estado_pago", length = 20)
+    private String estadoPago = "PENDIENTE";
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 

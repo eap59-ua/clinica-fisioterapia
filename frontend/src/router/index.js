@@ -53,6 +53,18 @@ const router = createRouter({
       meta: { requiresAuth: true, role: "CLIENTE" },
     },
     {
+      path: "/cliente/pago-exitoso",
+      name: "pago-exitoso",
+      component: () => import("../views/cliente/PagoExitoso.vue"),
+      meta: { requiresAuth: true, role: "CLIENTE" },
+    },
+    {
+      path: "/cliente/pago-error",
+      name: "pago-error",
+      component: () => import("../views/cliente/PagoError.vue"),
+      meta: { requiresAuth: true, role: "CLIENTE" },
+    },
+    {
       path: "/recepcionista",
       redirect: "/recepcionista/dashboard"
     },
