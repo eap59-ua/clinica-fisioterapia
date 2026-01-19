@@ -28,5 +28,26 @@ export default {
 
   cambiarEstado(id, estado) {
     return api.put(`/recepcionista/citas/${id}/estado?estado=${estado}`);
-  }
+  },
+
+  // FR-REC-02
+    buscarClientes(query) {
+      return api.get(`/recepcionista/clientes/buscar?query=${query}`);
+    },
+
+    // FR-REC-04: Obtener datos para rellenar el formulario de edición
+    getCitaPorId(id) {
+      return api.get(`/recepcionista/citas/${id}`);
+    },
+
+    // FR-REC-04: Guardar los cambios
+    actualizarCita(id, cita) {
+      return api.put(`/recepcionista/citas/${id}`, cita);
+    },
+
+    getHuecosLibres(fecha, fisioterapeutaId, duracion) {
+      return api.get(`/recepcionista/disponibilidad`, {
+        params: { fecha, fisioterapeutaId, duracion }
+      });
+    }
 };
