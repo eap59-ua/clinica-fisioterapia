@@ -139,10 +139,11 @@ const router = createRouter({
       path: '/admin/salas',
       component: SalasManagement
     },
-      path: '/recepcionista/editar-cita/:id', // IMPORTANTE: :id
+    {
+      path: '/recepcionista/editar-cita/:id',
       name: 'EditarCita',
       component: () => import('../views/recepcionista/EditarCita.vue'),
-      meta: { requiresAuth: true, role: 'RECEPCIONISTA' } // O tus guards
+      meta: { requiresAuth: true, role: 'RECEPCIONISTA' }
     },
 
     {
@@ -152,7 +153,7 @@ const router = createRouter({
       meta: { requiresAuth: true, role: 'RECEPCIONISTA' }
     },
     {
-      path: '/recepcionista/bloqueos', // Puedes acceder a esta desde un botón en ConfiguracionHorario si quieres
+      path: '/recepcionista/bloqueos',
       name: 'GestionBloqueos',
       component: () => import('../views/recepcionista/GestionBloqueos.vue'),
       meta: { requiresAuth: true, role: 'RECEPCIONISTA' }
