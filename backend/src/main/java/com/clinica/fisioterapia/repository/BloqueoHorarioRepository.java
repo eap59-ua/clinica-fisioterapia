@@ -21,4 +21,12 @@ public interface BloqueoHorarioRepository extends JpaRepository<BloqueoHorario, 
             @Param("fechaInicio") LocalDateTime fechaInicio,
             @Param("fechaFin") LocalDateTime fechaFin
     );
+  
+    // Buscar bloqueos que coincidan con una fecha y hora específica
+    // Sirve para saber si HOY es festivo o el fisio está de vacaciones
+    @Query("SELECT b FROM BloqueoHorario b WHERE " +
+            "(b.tipo = 'GLOBAL' OR b.fisioterapeuta.id = :fisioId) AND " +
+            ":fechaHora BETWEEN b.fechaInicio AND b.fechaFin")
+    List<BloqueoHorario> encontrarBloqueos(@Param("fisioId") Long fisioId,
+                                           @Param("fechaHora") LocalDateTime fechaHora);
 }

@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
@@ -23,9 +25,11 @@ public class BloqueoHorario {
     private Fisioterapeuta fisioterapeuta;
 
     @Column(name = "fecha_inicio", nullable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime fechaInicio;
 
     @Column(name = "fecha_fin", nullable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime fechaFin;
 
     @Column(length = 255)
