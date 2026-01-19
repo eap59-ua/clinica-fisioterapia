@@ -155,24 +155,34 @@ public class TpvClient {
     // ========== MOCK METHODS (para desarrollo) ==========
 
     private PagoResponse mockIniciarPago(PagoRequest request) {
-        String mockTransactionId = "MOCK_TXN_" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        // Generamos un ID falso que parezca real
+        String mockToken = "tok_" + UUID.randomUUID().toString().substring(0, 15);
 
-        log.info("[MOCK] Pago simulado iniciado: {}", mockTransactionId);
+        log.info("[MOCK] Simulando inicio de pago. Token generado: {}", mockToken);
+
+        // TRUCO MAESTRO:
+        // En lugar de enviar al usuario al TPV real (que no podemos porque no tenemos key),
+        // le enviamos directamente a TU página de "Verificar Pago" en el Frontend,
+        // pasando el token falso y status=OK.
+        // Así simulas que el usuario fue al TPV, pagó y volvió exitosamente.
+
+        String urlSimulada = "http://localhost:5173/cliente/verificar-pago?token=" + mockToken + "&status=COMPLETED";
 
         return PagoResponse.builder()
-            .transactionId(mockTransactionId)
-            .status("PENDING")
-            .paymentUrl("http://localhost:5173/cliente/mock-pago?txn=" + mockTransactionId + "&amount=" + request.getAmount())
-            .message("Pago iniciado correctamente (MOCK)")
-            .build();
+                .transactionId(mockToken) // Esto se mapeará al campo 'token' del JSON
+                .paymentUrl(urlSimulada)  // La URL mágica para probar el flujo
+                .status("PENDIENTE")      // El estado inicial siempre es pendiente
+                .build();
     }
 
-    private PagoResponse mockVerificarPago(String transactionId) {
-        // En modo mock, siempre devolvemos SUCCESS para facilitar pruebas
+    private PagoResponse mockVerificarPago(String token) {
+        log.info("[MOCK] Simulando verificación para token: {}", token);
+
+        // Aquí siempre decimos "Sí, todo ha ido bien"
         return PagoResponse.builder()
-            .transactionId(transactionId)
-            .status("SUCCESS")
-            .message("Pago completado correctamente (MOCK)")
-            .build();
+                .transactionId(token)
+                .status("COMPLETED") // Simulamos que el TPV dice "Pagado"
+                .message("Pago simulado exitoso (MOCK)")
+                .build();
     }
 }
