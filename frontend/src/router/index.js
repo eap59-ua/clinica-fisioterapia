@@ -1,6 +1,9 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { useAuthStore } from "../stores/auth";
-
+import AdminDashboard from '../views/admin/Dashboard.vue'
+import UsuariosManagement from '../views/admin/UsuariosManagement.vue'
+import ServiciosManagement from '../views/admin/ServiciosManagement.vue'
+import SalasManagement from '../views/admin/SalasManagement.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -115,6 +118,21 @@ const router = createRouter({
       meta: { requiresAuth: true, role: "FISIOTERAPEUTA" },
     },
     {
+      path: '/admin',
+      component: AdminDashboard,
+    },
+    {
+      path: '/admin/usuarios',
+      component: UsuariosManagement,
+    },
+    {
+      path: '/admin/servicios',
+      component: ServiciosManagement
+    },
+    {
+      path: '/admin/salas',
+      component: SalasManagement
+    },
       path: '/recepcionista/editar-cita/:id', // IMPORTANTE: :id
       name: 'EditarCita',
       component: () => import('../views/recepcionista/EditarCita.vue'),
