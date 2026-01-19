@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6">
+  <div class="p-6 pt-24">
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-3xl font-bold text-gray-800">Agenda Semanal</h1>
 

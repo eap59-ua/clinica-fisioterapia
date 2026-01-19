@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6">
+  <div class="p-6 pt-24">
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-3xl font-bold text-gray-800">Dashboard - Mis Citas de Hoy</h1>
 
@@ -77,7 +77,7 @@
                 <div>
                   <span class="text-gray-500">Servicio:</span>
                   <span class="font-medium text-gray-700 ml-1">{{ cita.servicio?.nombre }}</span>
-                  <span class="text-gray-400 ml-1">({{ cita.servicio?.duracion }} min)</span>
+                  <span class="text-gray-400 ml-1">({{ cita.servicio?.duracionMinutos }} min)</span>
                 </div>
                 <div>
                   <span class="text-gray-500">Sala:</span>
