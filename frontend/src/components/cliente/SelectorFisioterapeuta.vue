@@ -26,11 +26,11 @@
     <!-- Lista de fisioterapeutas -->
     <div
       v-for="fisio in fisioterapeutas"
-      :key="fisio.usuarioId"
+      :key="fisio.id"
       @click="$emit('seleccionar', fisio)"
       :class="[
         'border-2 rounded-lg p-4 cursor-pointer transition-all',
-        fisioterapeutaSeleccionado?.usuarioId === fisio.usuarioId
+        fisioterapeutaSeleccionado?.id === fisio.id
           ? 'border-teal-500 bg-teal-50'
           : 'border-gray-200 hover:border-teal-300'
       ]"

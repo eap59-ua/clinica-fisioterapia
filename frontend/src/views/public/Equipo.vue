@@ -54,21 +54,10 @@
             <!-- Image Section -->
             <div class="relative h-72 overflow-hidden">
               <img
-                v-if="fisio.fotoUrl"
-                :src="fisio.fotoUrl"
+                :src="fisio.fotoUrl || getAvatarUrl(fisio)"
                 :alt="fisio.nombre"
                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
               />
-              <div
-                v-else
-                class="w-full h-full bg-gradient-to-br from-secondary-500 via-secondary-600 to-primary-600 flex items-center justify-center"
-              >
-                <div class="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-                  <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                  </svg>
-                </div>
-              </div>
 
               <!-- Rating Badge -->
               <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-2 rounded-xl shadow-soft flex items-center gap-1.5">
@@ -176,6 +165,15 @@ import publicService from "../../services/publicService";
 
 const fisioterapeutas = ref([]);
 const loading = ref(true);
+
+// Genera avatar usando UI Avatars API
+const getAvatarUrl = (fisio) => {
+  const name = `${fisio.nombre} ${fisio.apellidos}`;
+  const colors = ['0D9488', '0891B2', '7C3AED', 'DB2777', 'EA580C', '059669'];
+  const colorIndex = fisio.id % colors.length;
+  const bgColor = colors[colorIndex];
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&size=300&background=${bgColor}&color=ffffff&bold=true&format=svg`;
+};
 
 onMounted(async () => {
   try {

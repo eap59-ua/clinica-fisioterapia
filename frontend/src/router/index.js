@@ -1,6 +1,9 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { useAuthStore } from "../stores/auth";
-
+import AdminDashboard from '../views/admin/Dashboard.vue'
+import UsuariosManagement from '../views/admin/UsuariosManagement.vue'
+import ServiciosManagement from '../views/admin/ServiciosManagement.vue'
+import SalasManagement from '../views/admin/SalasManagement.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -65,6 +68,12 @@ const router = createRouter({
       meta: { requiresAuth: true, role: "CLIENTE" },
     },
     {
+      path: "/cliente/mock-pago",
+      name: "mock-pago",
+      component: () => import("../views/cliente/MockPago.vue"),
+      meta: { requiresAuth: true, role: "CLIENTE" },
+    },
+    {
       path: "/recepcionista",
       redirect: "/recepcionista/dashboard"
     },
@@ -115,10 +124,26 @@ const router = createRouter({
       meta: { requiresAuth: true, role: "FISIOTERAPEUTA" },
     },
     {
-      path: '/recepcionista/editar-cita/:id', // IMPORTANTE: :id
+      path: '/admin',
+      component: AdminDashboard,
+    },
+    {
+      path: '/admin/usuarios',
+      component: UsuariosManagement,
+    },
+    {
+      path: '/admin/servicios',
+      component: ServiciosManagement
+    },
+    {
+      path: '/admin/salas',
+      component: SalasManagement
+    },
+    {
+      path: '/recepcionista/editar-cita/:id',
       name: 'EditarCita',
       component: () => import('../views/recepcionista/EditarCita.vue'),
-      meta: { requiresAuth: true, role: 'RECEPCIONISTA' } // O tus guards
+      meta: { requiresAuth: true, role: 'RECEPCIONISTA' }
     },
 
     {
@@ -128,7 +153,7 @@ const router = createRouter({
       meta: { requiresAuth: true, role: 'RECEPCIONISTA' }
     },
     {
-      path: '/recepcionista/bloqueos', // Puedes acceder a esta desde un botón en ConfiguracionHorario si quieres
+      path: '/recepcionista/bloqueos',
       name: 'GestionBloqueos',
       component: () => import('../views/recepcionista/GestionBloqueos.vue'),
       meta: { requiresAuth: true, role: 'RECEPCIONISTA' }

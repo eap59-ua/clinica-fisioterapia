@@ -5,11 +5,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface CitaRepository extends JpaRepository<Cita, Long> {
+
+    // Buscar cita por token de transacción TPV
+    Optional<Cita> findByTransaccionTpvId(String transaccionTpvId);
 
     // Obtener citas de un cliente
     @Query("SELECT c FROM Cita c WHERE c.cliente.id = :clienteId ORDER BY c.fecha DESC, c.horaInicio DESC")
@@ -100,4 +105,14 @@ public interface CitaRepository extends JpaRepository<Cita, Long> {
     List<Cita> findByClienteIdAndFisioterapeutaIdOrderByFechaDesc(
             @Param("clienteId") Long clienteId,
             @Param("fisioId") Long fisioId);
+
+    // ==================== MÉTODOS PARA ESTADÍSTICAS ADMIN ====================
+
+    // Contar citas en un rango de fechas
+    @Query("SELECT COUNT(c) FROM Cita c WHERE c.fecha BETWEEN :inicio AND :fin")
+    long countByFechaBetween(@Param("inicio") LocalDate inicio, @Param("fin") LocalDate fin);
+
+    // Sumar ingresos en un rango de fechas
+    @Query("SELECT SUM(c.precioPagado) FROM Cita c WHERE c.fecha BETWEEN :inicio AND :fin AND c.estado = 'COMPLETADA'")
+    BigDecimal sumPrecioPagadoByFechaBetween(@Param("inicio") LocalDate inicio, @Param("fin") LocalDate fin);
 }

@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run build:*)",
+      "Bash(ls:*)",
+      "Bash(./mvnw.cmd spring-boot:run:*)",
+      "Bash(mvn spring-boot:run:*)",
+      "Bash(npm run dev:*)"
+    ]
+  }
+}

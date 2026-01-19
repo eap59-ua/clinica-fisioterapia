@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CrearNotaSesionRequest {
 
-    @NotNull(message = "El ID de la cita es obligatorio")
     private Long citaId;
 
     @NotBlank(message = "El contenido de la nota no puede estar vacío")

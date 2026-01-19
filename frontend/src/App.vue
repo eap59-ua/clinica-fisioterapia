@@ -1,8 +1,10 @@
 <template>
-  <div id="app">
-
-    <router-view />
-    <Footer />
+  <div id="app" class="min-h-screen flex flex-col">
+    <Navbar />
+    <main class="flex-1 bg-gray-50">
+      <router-view />
+    </main>
+    <Footer class="mt-auto" />
   </div>
 </template>
 

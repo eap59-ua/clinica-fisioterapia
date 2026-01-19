@@ -43,6 +43,12 @@ export default {
   async getDisponibilidad(fisioterapeutaId, fechaInicio, dias = 7) {
     const disponibilidad = [];
 
+    // Validar parámetros requeridos
+    if (!fisioterapeutaId) {
+      console.warn('getDisponibilidad: fisioterapeutaId no proporcionado');
+      return disponibilidad;
+    }
+
     // Obtener el servicio ID (asumimos que ya está seleccionado en el contexto)
     // Por ahora usaremos un valor por defecto, pero esto debería venir del componente
     const servicioId = 1; // TODO: Pasar como parámetro
@@ -93,6 +99,12 @@ export default {
    */
   async getDisponibilidadConServicio(fisioterapeutaId, servicioId, fechaInicio, dias = 7) {
     const disponibilidad = [];
+
+    // Validar parámetros requeridos
+    if (!fisioterapeutaId || !servicioId) {
+      console.warn('getDisponibilidadConServicio: fisioterapeutaId o servicioId no proporcionados', { fisioterapeutaId, servicioId });
+      return disponibilidad;
+    }
 
     for (let i = 0; i < dias; i++) {
       const fecha = new Date(fechaInicio);

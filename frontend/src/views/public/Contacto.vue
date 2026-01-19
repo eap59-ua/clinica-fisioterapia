@@ -100,14 +100,18 @@
               </div>
             </div>
 
-            <!-- Map Placeholder -->
-            <div class="mt-8 h-48 bg-dark-100 rounded-2xl flex items-center justify-center overflow-hidden">
-              <div class="text-center text-dark-400">
-                <svg class="w-10 h-10 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
-                </svg>
-                <p class="text-sm">Mapa de ubicación</p>
-              </div>
+            <!-- Google Maps Embed -->
+            <div class="mt-8 h-56 rounded-2xl overflow-hidden shadow-soft">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3128.8876754912144!2d-0.4837799!3d38.3451811!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd6236b0a3c6c8c7%3A0x4d8e7a8c7d8e7a8c!2sCalle%20Mayor%2C%2003001%20Alicante!5e0!3m2!1ses!2ses!4v1705680000000!5m2!1ses!2ses"
+                width="100%"
+                height="100%"
+                style="border:0;"
+                allowfullscreen=""
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+                class="w-full h-full"
+              ></iframe>
             </div>
           </div>
 

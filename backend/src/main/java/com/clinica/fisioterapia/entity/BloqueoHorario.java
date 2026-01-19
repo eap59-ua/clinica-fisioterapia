@@ -1,33 +1,47 @@
 package com.clinica.fisioterapia.entity;
 
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
-import lombok.Data;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "bloqueo_horario")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class BloqueoHorario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Puede ser null si es un festivo nacional (GLOBAL)
-    @ManyToOne
-    @JoinColumn(name = "fisioterapeuta_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fisioterapeuta_id", nullable = false)
     private Fisioterapeuta fisioterapeuta;
 
-    @Column(name = "fecha_inicio")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm") // Añade esto
+    @Column(name = "fecha_inicio", nullable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime fechaInicio;
 
-    @Column(name = "fecha_fin")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm") // Añade esto
+    @Column(name = "fecha_fin", nullable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime fechaFin;
+
+    @Column(length = 255)
     private String motivo;
 
-    // 'PERSONAL' o 'GLOBAL'
-    private String tipo;
+    @Column(length = 20, nullable = false)
+    private String tipo = "PERSONAL";
+
+    @PrePersist
+    protected void onCreate() {
+        if (tipo == null) {
+            tipo = "PERSONAL";
+        }
+    }
 }

@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Comparator;
 
 @Service
 @RequiredArgsConstructor
@@ -152,9 +153,9 @@ public class FisioterapeutaService {
         validarCitaPerteneceFisioterapeuta(cita, fisioterapeutaId);
 
         NotaSesion nota = notaSesionRepository.findByCitaId(citaId)
-                .orElseThrow(() -> new RuntimeException("No hay nota registrada para esta cita"));
+                .orElse(null);
 
-        return convertirANotaSesionDTO(nota);
+        return nota != null ? convertirANotaSesionDTO(nota) : null;
     }
 
     /**
@@ -171,6 +172,19 @@ public class FisioterapeutaService {
 
         return citas.stream()
                 .map(this::convertirAHistorialDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtener lista de pacientes del día (clientes únicos con sus citas de hoy)
+     */
+    public List<PacienteDiaDTO> getPacientesDelDia(Long fisioterapeutaId) {
+        LocalDate hoy = LocalDate.now();
+        List<Cita> citasHoy = citaRepository.findByFisioterapeutaIdAndFecha(fisioterapeutaId, hoy);
+
+        return citasHoy.stream()
+                .sorted(Comparator.comparing(Cita::getHoraInicio))
+                .map(this::convertirAPacienteDiaDTO)
                 .collect(Collectors.toList());
     }
 
@@ -280,6 +294,25 @@ public class FisioterapeutaService {
                 .servicioNombre(cita.getServicio().getNombre())
                 .tieneNota(tieneNota)
                 .notaResumen(notaResumen)
+                .build();
+    }
+
+    /**
+     * Convertir Cita a PacienteDiaDTO
+     */
+    private PacienteDiaDTO convertirAPacienteDiaDTO(Cita cita) {
+        Cliente cliente = cita.getCliente();
+
+        return PacienteDiaDTO.builder()
+                .clienteId(cliente.getId())
+                .nombreCompleto(cliente.getNombre() + " " + cliente.getApellidos())
+                .email(cliente.getEmail())
+                .telefono(cliente.getTelefono())
+                .citaId(cita.getId())
+                .horaInicio(cita.getHoraInicio())
+                .horaFin(cita.getHoraFin())
+                .servicioNombre(cita.getServicio().getNombre())
+                .estado(cita.getEstado().toString())
                 .build();
     }
 }
