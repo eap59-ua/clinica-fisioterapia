@@ -1,26 +1,43 @@
 <template>
   <div class="p-6">
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
       <h1 class="text-3xl font-bold text-gray-800">Agenda de Recepción</h1>
 
-      <div class="flex gap-4">
+      <div class="flex flex-wrap gap-3 items-center justify-end">
         <input
           type="date"
           v-model="fechaSeleccionada"
           @change="cargarCitas"
           class="border p-2 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          title="Seleccionar fecha"
         />
 
         <router-link
+          to="/recepcionista/configuracion-horarios"
+          class="bg-gray-600 text-white px-3 py-2 rounded hover:bg-gray-700 shadow-sm flex items-center transition gap-2 text-sm font-medium"
+          title="Configurar horas de apertura y cierre"
+        >
+          Horarios
+        </router-link>
+
+        <router-link
+          to="/recepcionista/bloqueos"
+          class="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600 shadow-sm flex items-center transition gap-2 text-sm font-medium"
+          title="Gestionar festivos y vacaciones"
+        >
+          Festivos
+        </router-link>
+
+        <router-link
           to="/recepcionista/citas-management"
-          class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 shadow-sm flex items-center transition"
+          class="bg-indigo-600 text-white px-3 py-2 rounded hover:bg-indigo-700 shadow-sm flex items-center transition gap-2 text-sm font-medium"
         >
           ⚙️ Gestión Avanzada
         </router-link>
 
         <router-link
           to="/recepcionista/crear-cita"
-          class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 shadow-sm flex items-center transition"
+          class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 shadow-sm flex items-center transition gap-2 text-sm font-bold"
         >
           + Nueva Cita
         </router-link>
@@ -105,8 +122,10 @@ import { ref, onMounted } from 'vue';
 import recepcionistaService from '@/services/recepcionistaService';
 
 const citas = ref([]);
+// Inicializamos la fecha con el día de hoy en formato YYYY-MM-DD
 const fechaSeleccionada = ref(new Date().toISOString().split('T')[0]);
 
+// Cargar citas de la fecha seleccionada
 const cargarCitas = async () => {
   try {
     const res = await recepcionistaService.getCitasDia(fechaSeleccionada.value);
@@ -116,8 +135,8 @@ const cargarCitas = async () => {
   }
 };
 
+// Cambiar estado (Confirmar / Cancelar)
 const cambiarEstado = async (id, nuevoEstado) => {
-  // Preguntar confirmación antes de actuar
   const mensaje = nuevoEstado === 'COMPLETADA'
     ? '¿Confirmar asistencia y pago del cliente?'
     : '¿Seguro que deseas cancelar esta cita?';
@@ -126,7 +145,7 @@ const cambiarEstado = async (id, nuevoEstado) => {
 
   try {
     await recepcionistaService.cambiarEstado(id, nuevoEstado);
-    await cargarCitas(); // Recargar tabla para ver cambios
+    await cargarCitas(); // Recargar tabla para refrescar la vista
   } catch (error) {
     console.error(error);
     alert("Error al actualizar el estado");
@@ -139,7 +158,7 @@ const formatHora = (horaStr) => {
   return horaStr.substring(0, 5);
 };
 
-// Colores según estado
+// Estilos CSS dinámicos según el estado
 const estadoClass = (estado) => {
   switch(estado) {
     case 'COMPLETADA': return 'bg-green-100 text-green-800';
@@ -149,6 +168,7 @@ const estadoClass = (estado) => {
   }
 };
 
+// Al montar el componente, cargamos las citas de hoy
 onMounted(() => {
   cargarCitas();
 });

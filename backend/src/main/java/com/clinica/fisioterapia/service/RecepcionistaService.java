@@ -4,17 +4,19 @@ import com.clinica.fisioterapia.dto.CitaDTO;
 import com.clinica.fisioterapia.entity.Cita;
 import com.clinica.fisioterapia.entity.Cliente;
 import com.clinica.fisioterapia.entity.EstadoCita;
-import com.clinica.fisioterapia.repository.CitaRepository;
-import com.clinica.fisioterapia.repository.ClienteRepository;
+import com.clinica.fisioterapia.entity.HorarioClinica;
+import com.clinica.fisioterapia.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,6 +25,8 @@ public class RecepcionistaService {
 
     private final CitaRepository citaRepository;
     private final ClienteRepository clienteRepository;
+    private final HorarioClinicaRepository horarioRepository;
+    private final BloqueoHorarioRepository bloqueoRepository;
 
     @Transactional(readOnly = true)
     public List<CitaDTO> obtenerCitasDelDia(LocalDate fecha) {
@@ -181,40 +185,53 @@ public class RecepcionistaService {
 
     @Transactional(readOnly = true)
     public List<String> obtenerHuecosLibres(LocalDate fecha, Long fisioterapeutaId, int duracionMinutos) {
-        // 1. Configuración básica (Hardcoded por ahora, luego irá a BD)
-        LocalTime apertura = LocalTime.of(9, 0);
-        LocalTime cierre = LocalTime.of(21, 0);
-        int intervaloMinutos = 15; // Buscamos huecos cada 15 min (9:00, 9:15, 9:30...)
-
-        // 2. Obtener citas de ese fisio en ese día
-        // (Necesitas asegurar que en CitaRepository tengas un método findByFisioterapeutaIdAndFecha)
-        // Si no lo tienes, usa el filtro de repositorio que crearemos abajo.
-        List<Cita> citasDelDia = citaRepository.findByFisioterapeutaIdAndFecha(fisioterapeutaId, fecha);
 
         List<String> huecosLibres = new ArrayList<>();
+
+        // 1. Obtener Horario según día de la semana (1=Mon, 7=Sun)
+        int diaSemanaNum = fecha.getDayOfWeek().getValue();
+
+        Optional<HorarioClinica> horarioOpt = horarioRepository.findByDiaSemana(diaSemanaNum);
+
+        // Si NO hay registro en la tabla para este día (ej. Domingo en tu script), devolvemos vacío
+        if (horarioOpt.isEmpty()) {
+            return huecosLibres; // Clínica Cerrada
+        }
+
+        HorarioClinica horario = horarioOpt.get();
+        LocalTime apertura = horario.getHoraApertura();
+        LocalTime cierre = horario.getHoraCierre();
+        int intervaloMinutos = 15;
+
+        // 2. Obtener citas ya ocupadas
+        List<Cita> citasDelDia = citaRepository.findByFisioterapeutaIdAndFecha(fisioterapeutaId, fecha);
+
         LocalTime horaActual = apertura;
 
-        // 3. Algoritmo de "Ventana Deslizante"
-        // Mientras la hora de inicio + duración no supere el cierre...
+        // 3. Bucle para buscar huecos
         while (horaActual.plusMinutes(duracionMinutos).isBefore(cierre) || horaActual.plusMinutes(duracionMinutos).equals(cierre)) {
 
             LocalTime finPotencial = horaActual.plusMinutes(duracionMinutos);
-            boolean ocupado = false;
+            LocalDateTime fechaHoraInicio = LocalDateTime.of(fecha, horaActual);
 
-            // Comprobar colisión con citas existentes
+            // A) Verificar si hay Cita solapada
+            boolean ocupadoPorCita = false;
             for (Cita cita : citasDelDia) {
-                // Se solapa si: (InicioCita < FinPotencial) Y (FinCita > HoraActual)
                 if (cita.getHoraInicio().isBefore(finPotencial) && cita.getHoraFin().isAfter(horaActual)) {
-                    ocupado = true;
+                    ocupadoPorCita = true;
                     break;
                 }
             }
 
-            if (!ocupado) {
+            // B) Verificar si hay Bloqueo (Festivo o Vacaciones) en esa hora exacta
+            // Usamos el repositorio de bloqueos para ver si "cae" dentro de un rango bloqueado
+            boolean ocupadoPorBloqueo = !bloqueoRepository.encontrarBloqueos(fisioterapeutaId, fechaHoraInicio).isEmpty();
+
+            // Si está libre de citas Y libre de bloqueos/festivos
+            if (!ocupadoPorCita && !ocupadoPorBloqueo) {
                 huecosLibres.add(horaActual.toString());
             }
 
-            // Avanzamos al siguiente intervalo
             horaActual = horaActual.plusMinutes(intervaloMinutos);
         }
 
