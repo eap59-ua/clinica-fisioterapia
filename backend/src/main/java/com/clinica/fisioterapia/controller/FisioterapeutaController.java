@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/fisioterapeuta")
+@RequestMapping("/fisioterapeuta")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 @PreAuthorize("hasRole('FISIOTERAPEUTA')")
@@ -128,6 +128,11 @@ public class FisioterapeutaController {
 
         Long fisioterapeutaId = usuario.getId();
         NotaSesionDTO nota = fisioterapeutaService.getNotaDeCita(id, fisioterapeutaId);
+
+        if (nota == null) {
+            return ResponseEntity.notFound().build();
+        }
+
         return ResponseEntity.ok(nota);
     }
 

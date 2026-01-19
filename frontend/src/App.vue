@@ -1,10 +1,10 @@
 <template>
-  <div id="app" class="flex flex-col min-h-screen">
-    <Navbar />
-    <main class="flex-grow">
+  <div id="app" class="min-h-screen flex flex-col">
+    <Navbar class="flex-shrink-0" />
+    <main class="flex-1 overflow-y-auto bg-gray-50">
       <router-view />
     </main>
-    <Footer />
+    <Footer class="flex-shrink-0 mt-auto" />
   </div>
 </template>
 

@@ -153,9 +153,9 @@ public class FisioterapeutaService {
         validarCitaPerteneceFisioterapeuta(cita, fisioterapeutaId);
 
         NotaSesion nota = notaSesionRepository.findByCitaId(citaId)
-                .orElseThrow(() -> new RuntimeException("No hay nota registrada para esta cita"));
+                .orElse(null);
 
-        return convertirANotaSesionDTO(nota);
+        return nota != null ? convertirANotaSesionDTO(nota) : null;
     }
 
     /**
