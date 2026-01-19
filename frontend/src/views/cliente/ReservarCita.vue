@@ -264,20 +264,17 @@ const cargarDisponibilidad = async () => {
   }
 
   // 2. Obtener el ID del fisio (del seleccionado o del primero de la lista)
-  // Añadimos una comprobación extra para asegurarnos de que el array tiene datos
-  let fisioId = reserva.value.fisioterapeuta?.usuarioId;
+  // El backend devuelve 'id' (heredado de Usuario), no 'usuarioId'
+  let fisioId = reserva.value.fisioterapeuta?.id;
 
   if (!fisioId && fisioterapeutas.value && fisioterapeutas.value.length > 0) {
-    fisioId = fisioterapeutas.value[0].usuarioId;
+    fisioId = fisioterapeutas.value[0].id;
     console.log("RESERVA: Usando fisio por defecto ID:", fisioId);
   }
 
   if (!fisioId) {
-    console.error(
-      "RESERVA: Lista de fisioterapeutas vacía o no cargada todavía.",
-    );
-    // Reintento automático en 500ms si la lista sigue vacía (por si es lag de red)
-    setTimeout(cargarDisponibilidad, 500);
+    console.error("RESERVA: No se pudo obtener ID de fisioterapeuta");
+    cargandoDisponibilidad.value = false;
     return;
   }
 
@@ -323,8 +320,7 @@ const confirmarReserva = async () => {
     const payload = {
       servicioId: reserva.value.servicio.id,
       fisioterapeutaId:
-        reserva.value.fisioterapeuta?.usuarioId ||
-        fisioterapeutas.value[0].usuarioId,
+        reserva.value.fisioterapeuta?.id || fisioterapeutas.value[0].id,
       fecha: reserva.value.fecha,
       horaInicio: reserva.value.horaInicio + ":00",
     };
