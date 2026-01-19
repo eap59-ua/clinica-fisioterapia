@@ -13,18 +13,11 @@
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-1">Paciente</label>
-          <select
-            v-model="form.cliente.id"
-            class="w-full border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            required
-          >
-            <option value="" disabled>Seleccione un paciente</option>
-            <option v-for="c in listas.clientes" :key="c.id" :value="c.id">
-              {{ c.nombre }} {{ c.apellidos }} ({{ c.dni || 'Sin DNI' }})
-            </option>
-          </select>
+        <div class="bg-gray-50 p-2 rounded border border-gray-200">
+          <ClienteSearch
+            @seleccionar-cliente="asignarCliente"
+          />
+          <p v-if="errorCliente" class="text-red-500 text-xs mt-1">Debe seleccionar un paciente.</p>
         </div>
 
         <div>
@@ -36,7 +29,7 @@
           >
             <option value="" disabled>Seleccione un fisioterapeuta</option>
             <option v-for="f in listas.fisioterapeutas" :key="f.id" :value="f.id">
-              {{ f.nombre }} {{ f.apellidos }} - {{ f.especialidades }}
+              {{ f.nombre }} {{ f.apellidos }}
             </option>
           </select>
         </div>
@@ -144,51 +137,62 @@
 import { ref, onMounted, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import recepcionistaService from '@/services/recepcionistaService';
+// Importamos el buscador. AJUSTA LA RUTA si lo guardaste en otra carpeta.
+import ClienteSearch from '@/components/recepcionista/ClienteSearch.vue';
+// Si usaste la ruta del ejemplo anterior sería: '@/components/recepcionista/ClienteSearch.vue'
 
 const router = useRouter();
 const cargando = ref(true);
 const duracionEstimada = ref(0);
+const errorCliente = ref(false); // Validación manual para el buscador
 
-// Listas para los desplegables
+// Listas para los desplegables (YA NO INCLUYE CLIENTES)
 const listas = reactive({
-  clientes: [],
   fisioterapeutas: [],
   servicios: [],
   salas: []
 });
 
-// Estructura del formulario igual a tu DTO/Entidad
 const form = ref({
   cliente: { id: '' },
   fisioterapeuta: { id: '' },
   servicio: { id: '' },
   sala: { id: '' },
   precioPagado: 0,
-  fecha: new Date().toISOString().split('T')[0], // Hoy por defecto
+  fecha: new Date().toISOString().split('T')[0],
   horaInicio: '09:00',
   notas: ''
 });
 
 onMounted(async () => {
   try {
-    const [clientesRes, fisiosRes, serviciosRes, salasRes] = await Promise.all([
-      recepcionistaService.getClientes(),
+    // YA NO LLAMAMOS A getClientes(), usamos el buscador
+    const [fisiosRes, serviciosRes, salasRes] = await Promise.all([
       recepcionistaService.getFisioterapeutas(),
       recepcionistaService.getServicios(),
       recepcionistaService.getSalas()
     ]);
 
-    listas.clientes = clientesRes.data;
     listas.fisioterapeutas = fisiosRes.data;
     listas.servicios = serviciosRes.data;
     listas.salas = salasRes.data;
   } catch (error) {
     console.error("Error cargando listas:", error);
-    alert("No se pudieron cargar los datos necesarios (clientes/fisios/servicios). Verifique la conexión.");
+    alert("No se pudieron cargar los datos necesarios. Verifique la conexión.");
   } finally {
     cargando.value = false;
   }
 });
+
+// Función que recibe el evento del componente hijo
+const asignarCliente = (clienteSeleccionado) => {
+  if (clienteSeleccionado) {
+    form.value.cliente.id = clienteSeleccionado.id;
+    errorCliente.value = false;
+  } else {
+    form.value.cliente.id = '';
+  }
+};
 
 const alCambiarServicio = () => {
   const servicioId = form.value.servicio.id;
@@ -212,6 +216,13 @@ const calcularHoraFin = () => {
 };
 
 const guardarCita = async () => {
+  // Validación manual del cliente (porque el componente search no tiene 'required' nativo de HTML)
+  if (!form.value.cliente.id) {
+    errorCliente.value = true;
+    alert("Por favor, busque y seleccione un paciente.");
+    return;
+  }
+
   const payload = {
     cliente: { id: form.value.cliente.id },
     fisioterapeuta: { id: form.value.fisioterapeuta.id },
@@ -226,7 +237,6 @@ const guardarCita = async () => {
 
   try {
     await recepcionistaService.crearCita(payload);
-    // SweetAlert o alert nativo
     alert('¡Cita creada con éxito!');
     router.push('/recepcionista/dashboard');
   } catch (error) {

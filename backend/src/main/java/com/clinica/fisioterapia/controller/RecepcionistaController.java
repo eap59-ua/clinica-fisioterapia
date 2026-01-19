@@ -86,4 +86,29 @@ public class RecepcionistaController {
 
     @GetMapping("/salas")
     public List<Sala> getSalas() { return salaRepository.findAll(); }
+
+    // FR-REC-02: Endpoint de búsqueda
+    @GetMapping("/clientes/buscar")
+    public ResponseEntity<List<Cliente>> buscarClientes(@RequestParam String query) {
+        return ResponseEntity.ok(service.buscarClientes(query));
+    }
+
+    // FR-REC-04: Endpoint para obtener una cita individual (para cargar el formulario de edición)
+    @GetMapping("/citas/{id}")
+    public ResponseEntity<CitaDTO> getCita(@PathVariable Long id) {
+        return ResponseEntity.ok(service.obtenerCitaPorId(id));
+    }
+
+    // FR-REC-04: Endpoint para actualizar
+    @PutMapping("/citas/{id}")
+    public ResponseEntity<?> actualizarCita(@PathVariable Long id, @RequestBody Cita cita) {
+        try {
+            CitaDTO citaActualizada = service.actualizarCita(id, cita);
+            return ResponseEntity.ok(citaActualizada);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error al actualizar la cita");
+        }
+    }
 }
