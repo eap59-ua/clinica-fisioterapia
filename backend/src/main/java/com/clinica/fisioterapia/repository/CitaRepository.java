@@ -8,8 +8,12 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface CitaRepository extends JpaRepository<Cita, Long> {
+
+    // Buscar cita por token de transacción TPV
+    Optional<Cita> findByTransaccionTpvId(String transaccionTpvId);
 
     // Obtener citas de un cliente
     @Query("SELECT c FROM Cita c WHERE c.cliente.id = :clienteId ORDER BY c.fecha DESC, c.horaInicio DESC")
