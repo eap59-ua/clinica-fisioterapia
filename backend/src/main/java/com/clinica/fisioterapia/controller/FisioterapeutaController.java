@@ -3,6 +3,7 @@ package com.clinica.fisioterapia.controller;
 import com.clinica.fisioterapia.dto.*;
 import com.clinica.fisioterapia.entity.Usuario;
 import com.clinica.fisioterapia.service.FisioterapeutaService;
+import com.clinica.fisioterapia.service.BloqueoHorarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -13,16 +14,18 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/fisioterapeuta")
+@RequestMapping("/fisioterapeuta")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 @PreAuthorize("hasRole('FISIOTERAPEUTA')")
 public class FisioterapeutaController {
 
     private final FisioterapeutaService fisioterapeutaService;
+    private final BloqueoHorarioService bloqueoHorarioService;
 
     /**
      * GET /api/fisioterapeuta/citas
@@ -125,6 +128,11 @@ public class FisioterapeutaController {
 
         Long fisioterapeutaId = usuario.getId();
         NotaSesionDTO nota = fisioterapeutaService.getNotaDeCita(id, fisioterapeutaId);
+
+        if (nota == null) {
+            return ResponseEntity.notFound().build();
+        }
+
         return ResponseEntity.ok(nota);
     }
 
@@ -140,6 +148,69 @@ public class FisioterapeutaController {
         Long fisioterapeutaId = usuario.getId();
         List<HistorialClienteDTO> historial = fisioterapeutaService.getHistorialCliente(clienteId, fisioterapeutaId);
         return ResponseEntity.ok(historial);
+    }
+
+    /**
+     * GET /api/fisioterapeuta/pacientes/hoy
+     * Obtener lista de pacientes del día
+     */
+    @GetMapping("/pacientes/hoy")
+    public ResponseEntity<List<PacienteDiaDTO>> getPacientesDelDia(@AuthenticationPrincipal Usuario usuario) {
+        Long fisioterapeutaId = usuario.getId();
+        List<PacienteDiaDTO> pacientes = fisioterapeutaService.getPacientesDelDia(fisioterapeutaId);
+        return ResponseEntity.ok(pacientes);
+    }
+
+    // ==================== BLOQUEO DE HORARIOS ====================
+
+    /**
+     * POST /api/fisioterapeuta/bloqueos
+     * Crear un nuevo bloqueo de horario
+     */
+    @PostMapping("/bloqueos")
+    public ResponseEntity<BloqueoHorarioDTO> crearBloqueo(
+            @Valid @RequestBody CrearBloqueoRequest request,
+            @AuthenticationPrincipal Usuario usuario) {
+
+        Long fisioterapeutaId = usuario.getId();
+        BloqueoHorarioDTO bloqueo = bloqueoHorarioService.crearBloqueo(request, fisioterapeutaId);
+        return new ResponseEntity<>(bloqueo, HttpStatus.CREATED);
+    }
+
+    /**
+     * GET /api/fisioterapeuta/bloqueos
+     * Obtener todos los bloqueos del fisioterapeuta
+     */
+    @GetMapping("/bloqueos")
+    public ResponseEntity<List<BloqueoHorarioDTO>> getMisBloqueos(
+            @AuthenticationPrincipal Usuario usuario,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaInicio,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaFin) {
+
+        Long fisioterapeutaId = usuario.getId();
+        List<BloqueoHorarioDTO> bloqueos;
+
+        if (fechaInicio != null && fechaFin != null) {
+            bloqueos = bloqueoHorarioService.getBloqueosEnRango(fisioterapeutaId, fechaInicio, fechaFin);
+        } else {
+            bloqueos = bloqueoHorarioService.getMisBloqueos(fisioterapeutaId);
+        }
+
+        return ResponseEntity.ok(bloqueos);
+    }
+
+    /**
+     * DELETE /api/fisioterapeuta/bloqueos/{id}
+     * Eliminar un bloqueo de horario
+     */
+    @DeleteMapping("/bloqueos/{id}")
+    public ResponseEntity<Void> eliminarBloqueo(
+            @PathVariable Long id,
+            @AuthenticationPrincipal Usuario usuario) {
+
+        Long fisioterapeutaId = usuario.getId();
+        bloqueoHorarioService.eliminarBloqueo(id, fisioterapeutaId);
+        return ResponseEntity.noContent().build();
     }
 
     // ==================== MÉTODOS AUXILIARES ====================
