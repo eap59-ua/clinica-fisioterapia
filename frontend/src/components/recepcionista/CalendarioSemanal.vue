@@ -115,17 +115,24 @@ const getEstiloCelda = (dia, horaStr) => {
 };
 
 const esBloqueado = (fechaStr, horaStr) => {
-  const fechaHoraCelda = new Date(`${fechaStr}T${horaStr}`);
+  // 1. Calculamos cuándo empieza y acaba ESTA celda del calendario
+  // Ejemplo: celda de las 09:00 -> empieza 09:00, acaba 10:00
+  const inicioCelda = new Date(`${fechaStr}T${horaStr}`);
+  const finCelda = new Date(inicioCelda);
+  finCelda.setHours(finCelda.getHours() + 1);
 
+  // 2. Recorremos los bloqueos que llegan del backend
   return props.bloqueos.some(b => {
-    // Solo bloqueos globales (Clínica cerrada)
-    if (b.tipo !== 'GLOBAL') return false;
+    // Convertimos las fechas del bloqueo
+    const inicioBloqueo = new Date(b.fechaInicio); // ej: 2024-01-20T09:30:00
+    const finBloqueo = new Date(b.fechaFin);       // ej: 2024-01-20T10:30:00
 
-    const inicio = new Date(b.fechaInicio);
-    const fin = new Date(b.fechaFin);
+    // 3. Lógica de COLISIÓN (Overlap)
+    // "Si la celda empieza antes de que acabe el bloqueo Y la celda acaba después de que empiece el bloqueo"
+    // Esto detecta cualquier cruce de horarios.
+    const hayCruce = inicioCelda < finBloqueo && finCelda > inicioBloqueo;
 
-    // Comprobar si la celda cae dentro del bloqueo
-    return fechaHoraCelda >= inicio && fechaHoraCelda < fin;
+    return hayCruce;
   });
 };
 
