@@ -190,7 +190,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import SelectorServicio from "@/components/cliente/SelectorServicio.vue";
 import SelectorFisioterapeuta from "@/components/cliente/SelectorFisioterapeuta.vue";
 import CalendarioReserva from "@/components/cliente/CalendarioReserva.vue";
@@ -198,6 +198,7 @@ import publicService from "@/services/publicService";
 import citaService from "@/services/citaService";
 
 const router = useRouter();
+const route = useRoute();
 const steps = ["Servicio", "Profesional", "Fecha/Hora", "Confirmar"];
 const currentStep = ref(0);
 
@@ -231,6 +232,19 @@ onMounted(async () => {
       : [];
 
     console.log("RESERVA: Fisios tras filtrar:", fisioterapeutas.value);
+
+    // Pre-seleccionar servicio si viene en query params (desde página de Servicios)
+    const servicioIdParam = route.query.servicioId;
+    if (servicioIdParam) {
+      const servicioPreseleccionado = servicios.value.find(
+        (s) => s.id === Number(servicioIdParam)
+      );
+      if (servicioPreseleccionado) {
+        reserva.value.servicio = servicioPreseleccionado;
+        currentStep.value = 1; // Avanzar al paso de selección de profesional
+        console.log("RESERVA: Servicio preseleccionado:", servicioPreseleccionado);
+      }
+    }
   } catch (error) {
     console.error("RESERVA: Error en onMounted:", error);
   }
@@ -324,10 +338,22 @@ const confirmarReserva = async () => {
       fecha: reserva.value.fecha,
       horaInicio: reserva.value.horaInicio + ":00",
     };
+    console.log("RESERVA: Enviando payload:", payload);
     await citaService.reservarCita(payload);
     mostrarExito.value = true;
   } catch (e) {
-    alert("Error: " + (e.response?.data?.message || e.message));
+    console.error("RESERVA: Error al confirmar:", e.response?.data || e);
+    let errorMsg = e.response?.data?.message || e.message;
+
+    // Si hay errores de validación, mostrarlos
+    if (e.response?.data?.validationErrors) {
+      const errores = Object.entries(e.response.data.validationErrors)
+        .map(([campo, msg]) => `${campo}: ${msg}`)
+        .join("\n");
+      errorMsg = `Error de validación:\n${errores}`;
+    }
+
+    alert("Error: " + errorMsg);
   } finally {
     enviando.value = false;
   }
