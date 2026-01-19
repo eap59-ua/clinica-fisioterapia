@@ -7,6 +7,11 @@
       </button>
     </div>
 
+    <!-- Filtros -->
+    <div class="mb-4">
+      <input v-model="filtro" type="text" placeholder="Buscar por nombre, email o DNI..." class="border border-gray-300 rounded px-4 py-2 w-full md:w-1/3" />
+    </div>
+
     <div class="overflow-x-auto bg-white shadow-md rounded-lg">
       <table class="min-w-full leading-normal">
         <thead>
@@ -20,7 +25,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="usuario in usuarios" :key="usuario.id">
+        <tr v-for="usuario in usuariosFiltrados" :key="usuario.id">
           <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">{{ usuario.id }}</td>
           <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
             <p class="text-gray-900 font-bold whitespace-no-wrap">{{ usuario.nombre }} {{ usuario.apellidos }}</p>
@@ -63,14 +68,24 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
-// Asegúrate de que esta ruta es correcta. Si FormUsuario está en components/admin, esto debería funcionar:
 import FormUsuario from '@/components/admin/FormUsuario.vue';
 
 const usuarios = ref([]);
 const mostrarModal = ref(false);
 const usuarioEditando = ref({});
+const filtro = ref('');
+
+const usuariosFiltrados = computed(() => {
+  if (!filtro.value) return usuarios.value;
+  return usuarios.value.filter(u =>
+    u.nombre?.toLowerCase().includes(filtro.value.toLowerCase()) ||
+    u.apellidos?.toLowerCase().includes(filtro.value.toLowerCase()) ||
+    u.email?.toLowerCase().includes(filtro.value.toLowerCase()) ||
+    u.dni?.toLowerCase().includes(filtro.value.toLowerCase())
+  );
+});
 
 const API_URL = 'http://localhost:8080/api/admin/usuarios';
 
