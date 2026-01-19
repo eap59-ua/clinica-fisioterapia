@@ -1,5 +1,5 @@
 <template>
-  <div class="usuarios-management p-4 min-h-screen">
+  <div class="usuarios-management p-4 pt-24 min-h-screen">
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-2xl font-bold text-gray-800">Gestión de Usuarios</h1>
       <button @click="abrirModalCrear" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition duration-200">
