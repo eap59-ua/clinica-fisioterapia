@@ -27,18 +27,11 @@ public class TpvService {
 
         // Construir request de pago
         PagoRequest request = PagoRequest.builder()
-            .merchantId(tpvConfig.getMerchantId())
-            .orderId("CITA_" + cita.getId())
-            .amount(cita.getPrecioPagado())
-            .currency("EUR")
-            .description("Cita: " + cita.getServicio().getNombre())
-            .customerEmail(cita.getCliente().getEmail())
-            .customerName(cita.getCliente().getNombre() + " " + cita.getCliente().getApellidos())
-            .customerPhone(cita.getCliente().getTelefono())
-            .callbackUrl(tpvConfig.getCallbackUrl() + "?citaId=" + cita.getId())
-            .successUrl(tpvConfig.getSuccessUrl() + "?citaId=" + cita.getId())
-            .errorUrl(tpvConfig.getErrorUrl() + "?citaId=" + cita.getId())
-            .build();
+                .amount(cita.getPrecioPagado()) // Asegúrate que esto no sea null
+                .externalReference(String.valueOf(cita.getId())) // Enviamos ID cita como referencia
+                // IMPORTANTE: La callbackUrl debe apuntar a TU FRONTEND para que el usuario vuelva allí
+                .callbackUrl("http://localhost:5173/cliente/verificar-pago")
+                .build();
 
         // Llamar al TPV
         PagoResponse response = tpvClient.iniciarPago(request);

@@ -34,10 +34,11 @@ public class TpvClient {
 
         try {
             HttpHeaders headers = createHeaders();
+
             HttpEntity<PagoRequest> entity = new HttpEntity<>(request, headers);
 
             // TODO: Ajustar endpoint según documentación real del TPV
-            String url = config.getBaseUrl() + "/api/payments/init";
+            String url = config.getBaseUrl() + "/api/v1/payments/init";
 
             ResponseEntity<PagoResponse> response = restTemplate.exchange(
                 url,
@@ -64,15 +65,15 @@ public class TpvClient {
 
     /**
      * Verifica el estado de un pago
-     * @param transactionId ID de la transacción
+     * @param  ID de la transacción
      * @return Estado actual del pago
      */
-    public PagoResponse verificarPago(String transactionId) {
-        log.info("Verificando estado de pago: transactionId={}", transactionId);
+    public PagoResponse verificarPago(String token) {
+        log.info("Verificando estado de pago: transactionId={}", token);
 
         // Modo simulación
         if (config.isMockMode()) {
-            return mockVerificarPago(transactionId);
+            return mockVerificarPago(token);
         }
 
         try {
@@ -80,7 +81,7 @@ public class TpvClient {
             HttpEntity<Void> entity = new HttpEntity<>(headers);
 
             // TODO: Ajustar endpoint según documentación real del TPV
-            String url = config.getBaseUrl() + "/api/payments/" + transactionId + "/status";
+            String url = config.getBaseUrl() + "/api/v1/payments/verify" + token;
 
             ResponseEntity<PagoResponse> response = restTemplate.exchange(
                 url,
@@ -94,7 +95,7 @@ public class TpvClient {
         } catch (RestClientException e) {
             log.error("Error al verificar pago: {}", e.getMessage());
             return PagoResponse.builder()
-                .transactionId(transactionId)
+                .transactionId(token)
                 .status("UNKNOWN")
                 .message("No se pudo verificar el estado del pago")
                 .build();
