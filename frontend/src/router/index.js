@@ -65,6 +65,12 @@ const router = createRouter({
       meta: { requiresAuth: true, role: "CLIENTE" },
     },
     {
+      path: "/cliente/mock-pago",
+      name: "mock-pago",
+      component: () => import("../views/cliente/MockPago.vue"),
+      meta: { requiresAuth: true, role: "CLIENTE" },
+    },
+    {
       path: "/recepcionista",
       redirect: "/recepcionista/dashboard"
     },

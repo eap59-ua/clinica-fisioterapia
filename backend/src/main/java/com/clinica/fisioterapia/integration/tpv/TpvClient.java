@@ -161,7 +161,9 @@ public class TpvClient {
         return PagoResponse.builder()
             .transactionId(mockTransactionId)
             .status("PENDING")
-            .paymentUrl("http://localhost:5173/cliente/mock-pago?txn=" + mockTransactionId + "&amount=" + request.getAmount())
+            .paymentUrl("http://localhost:5173/cliente/mock-pago?txn=" + mockTransactionId
+                + "&amount=" + request.getAmount()
+                + "&orderId=" + request.getOrderId())
             .message("Pago iniciado correctamente (MOCK)")
             .build();
     }
