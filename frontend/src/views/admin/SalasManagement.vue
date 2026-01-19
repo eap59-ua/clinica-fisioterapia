@@ -1,10 +1,15 @@
 <template>
-  <div class="salas-management p-4 min-h-screen">
+  <div class="salas-management p-4 pt-24 min-h-screen">
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-2xl font-bold text-gray-800">Gestión de Salas</h1>
       <button @click="abrirModalCrear" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition duration-200">
         + Nueva Sala
       </button>
+    </div>
+
+    <!-- Filtros -->
+    <div class="mb-4">
+      <input v-model="filtro" type="text" placeholder="Buscar por nombre..." class="border border-gray-300 rounded px-4 py-2 w-full md:w-1/3" />
     </div>
 
     <div class="overflow-x-auto bg-white shadow-md rounded-lg">
@@ -18,7 +23,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="sala in salas" :key="sala.id">
+        <tr v-for="sala in salasFiltradas" :key="sala.id">
           <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">{{ sala.id }}</td>
           <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
             <p class="text-gray-900 font-bold whitespace-no-wrap">{{ sala.nombre }}</p>
@@ -50,13 +55,21 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
-import FormSala from '@/components/admin/FormSala.vue'; // Asegúrate de crear este archivo después
+import FormSala from '@/components/admin/FormSala.vue';
 
 const salas = ref([]);
 const mostrarModal = ref(false);
 const salaEditando = ref({});
+const filtro = ref('');
+
+const salasFiltradas = computed(() => {
+  if (!filtro.value) return salas.value;
+  return salas.value.filter(s =>
+    s.nombre?.toLowerCase().includes(filtro.value.toLowerCase())
+  );
+});
 
 const API_URL = 'http://localhost:8080/api/admin/salas';
 
