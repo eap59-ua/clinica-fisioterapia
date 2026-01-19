@@ -111,4 +111,14 @@ public class RecepcionistaController {
             return ResponseEntity.internalServerError().body("Error al actualizar la cita");
         }
     }
+
+    // FR-REC-03: Endpoint para sugerir huecos
+    @GetMapping("/disponibilidad")
+    public ResponseEntity<List<String>> comprobarDisponibilidad(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
+            @RequestParam Long fisioterapeutaId,
+            @RequestParam int duracion) {
+
+        return ResponseEntity.ok(service.obtenerHuecosLibres(fecha, fisioterapeutaId, duracion));
+    }
 }

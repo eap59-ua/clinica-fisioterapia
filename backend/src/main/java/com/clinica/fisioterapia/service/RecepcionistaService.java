@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -175,5 +177,47 @@ public class RecepcionistaService {
         Cita cita = citaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
         return convertirACitaDTO(cita);
+    }
+
+    @Transactional(readOnly = true)
+    public List<String> obtenerHuecosLibres(LocalDate fecha, Long fisioterapeutaId, int duracionMinutos) {
+        // 1. Configuración básica (Hardcoded por ahora, luego irá a BD)
+        LocalTime apertura = LocalTime.of(9, 0);
+        LocalTime cierre = LocalTime.of(21, 0);
+        int intervaloMinutos = 15; // Buscamos huecos cada 15 min (9:00, 9:15, 9:30...)
+
+        // 2. Obtener citas de ese fisio en ese día
+        // (Necesitas asegurar que en CitaRepository tengas un método findByFisioterapeutaIdAndFecha)
+        // Si no lo tienes, usa el filtro de repositorio que crearemos abajo.
+        List<Cita> citasDelDia = citaRepository.findByFisioterapeutaIdAndFecha(fisioterapeutaId, fecha);
+
+        List<String> huecosLibres = new ArrayList<>();
+        LocalTime horaActual = apertura;
+
+        // 3. Algoritmo de "Ventana Deslizante"
+        // Mientras la hora de inicio + duración no supere el cierre...
+        while (horaActual.plusMinutes(duracionMinutos).isBefore(cierre) || horaActual.plusMinutes(duracionMinutos).equals(cierre)) {
+
+            LocalTime finPotencial = horaActual.plusMinutes(duracionMinutos);
+            boolean ocupado = false;
+
+            // Comprobar colisión con citas existentes
+            for (Cita cita : citasDelDia) {
+                // Se solapa si: (InicioCita < FinPotencial) Y (FinCita > HoraActual)
+                if (cita.getHoraInicio().isBefore(finPotencial) && cita.getHoraFin().isAfter(horaActual)) {
+                    ocupado = true;
+                    break;
+                }
+            }
+
+            if (!ocupado) {
+                huecosLibres.add(horaActual.toString());
+            }
+
+            // Avanzamos al siguiente intervalo
+            horaActual = horaActual.plusMinutes(intervaloMinutos);
+        }
+
+        return huecosLibres;
     }
 }

@@ -43,5 +43,11 @@ export default {
     // FR-REC-04: Guardar los cambios
     actualizarCita(id, cita) {
       return api.put(`/recepcionista/citas/${id}`, cita);
+    },
+
+    getHuecosLibres(fecha, fisioterapeutaId, duracion) {
+      return api.get(`/recepcionista/disponibilidad`, {
+        params: { fecha, fisioterapeutaId, duracion }
+      });
     }
 };
