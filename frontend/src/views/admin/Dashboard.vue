@@ -10,11 +10,13 @@
 
       <div class="bg-green-100 p-6 rounded-lg shadow-md">
         <h3 class="text-lg font-semibold text-green-800">Citas este mes</h3>
-        <p class="text-4xl font-bold text-green-600 mt-2">124</p> </div>
+        <p class="text-4xl font-bold text-green-600 mt-2">{{ citasMes }}</p>
+      </div>
 
       <div class="bg-yellow-100 p-6 rounded-lg shadow-md">
         <h3 class="text-lg font-semibold text-yellow-800">Ingresos Estimados</h3>
-        <p class="text-4xl font-bold text-yellow-600 mt-2">4.500 €</p> </div>
+        <p class="text-4xl font-bold text-yellow-600 mt-2">{{ formatearPrecio(ingresosMes) }}</p>
+      </div>
     </div>
 
     <div class="mt-8">
@@ -43,16 +45,29 @@ import { ref, onMounted } from 'vue';
 import axios from 'axios';
 
 const totalUsuarios = ref(0);
+const citasMes = ref(0);
+const ingresosMes = ref(0);
 
-// Conectamos con tu backend para contar cuántos usuarios hay realmente
 const fetchStats = async () => {
   try {
-    // Asegúrate de que la URL coincida con tu puerto de backend (normalmente 8080)
-    const response = await axios.get('http://localhost:8080/api/admin/usuarios');
-    totalUsuarios.value = response.data.length;
+    const response = await axios.get('http://localhost:8080/api/admin/stats', {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    totalUsuarios.value = response.data.totalUsuarios;
+    citasMes.value = response.data.citasMes;
+    ingresosMes.value = response.data.ingresosMes;
   } catch (error) {
     console.error('Error cargando estadísticas:', error);
   }
+};
+
+const formatearPrecio = (precio) => {
+  return new Intl.NumberFormat('es-ES', {
+    style: 'currency',
+    currency: 'EUR'
+  }).format(precio);
 };
 
 onMounted(() => {
