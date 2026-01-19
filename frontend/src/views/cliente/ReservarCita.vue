@@ -1,49 +1,59 @@
 <template>
   <div class="max-w-4xl mx-auto p-6">
-    <!-- Header -->
     <div class="mb-6">
       <button
         @click="$router.push('/cliente')"
         class="flex items-center text-gray-600 hover:text-gray-800 mb-4"
       >
-        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        <svg
+          class="w-5 h-5 mr-2"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15 19l-7-7 7-7"
+          />
         </svg>
         Volver al Inicio
       </button>
       <h1 class="text-3xl font-bold text-gray-800">Reservar Nueva Cita</h1>
     </div>
 
-    <!-- Stepper -->
-    <div class="flex items-center justify-between mb-8">
+    <div class="flex items-center justify-between mb-8 overflow-x-auto pb-4">
       <div
         v-for="(step, index) in steps"
         :key="index"
-        class="flex items-center"
+        class="flex items-center flex-shrink-0"
       >
-        <div :class="[
-          'flex items-center justify-center w-10 h-10 rounded-full font-semibold',
-          currentStep > index ? 'bg-teal-500 text-white' :
-          currentStep === index ? 'bg-teal-500 text-white' :
-          'bg-gray-200 text-gray-600'
-        ]">
+        <div
+          :class="[
+            'flex items-center justify-center w-10 h-10 rounded-full font-semibold transition-colors',
+            currentStep >= index
+              ? 'bg-teal-500 text-white'
+              : 'bg-gray-200 text-gray-600',
+          ]"
+        >
           {{ index + 1 }}
         </div>
-        <span class="ml-2 text-sm font-medium text-gray-700">{{ step }}</span>
+        <span class="ml-2 text-sm font-medium text-gray-700 mr-4">{{
+          step
+        }}</span>
         <div
           v-if="index < steps.length - 1"
           :class="[
-            'h-1 w-16 mx-4',
-            currentStep > index ? 'bg-teal-500' : 'bg-gray-200'
+            'h-1 w-8 sm:w-16 mr-4',
+            currentStep > index ? 'bg-teal-500' : 'bg-gray-200',
           ]"
         ></div>
       </div>
     </div>
 
-    <!-- Contenido de cada paso -->
-    <div class="bg-white rounded-lg shadow-md p-6">
-      <!-- Paso 1: Servicio -->
-      <div v-show="currentStep === 0">
+    <div class="bg-white rounded-lg shadow-md p-6 min-h-[400px]">
+      <div v-if="currentStep === 0">
         <SelectorServicio
           :servicios="servicios"
           :servicio-seleccionado="reserva.servicio"
@@ -51,8 +61,7 @@
         />
       </div>
 
-      <!-- Paso 2: Profesional -->
-      <div v-show="currentStep === 1">
+      <div v-if="currentStep === 1">
         <SelectorFisioterapeuta
           :fisioterapeutas="fisioterapeutas"
           :fisioterapeuta-seleccionado="reserva.fisioterapeuta"
@@ -60,137 +69,119 @@
         />
       </div>
 
-      <!-- Paso 3: Fecha y Hora -->
-      <div v-show="currentStep === 2">
+      <div v-if="currentStep === 2">
+        <div
+          v-if="cargandoDisponibilidad"
+          class="flex flex-col items-center justify-center py-12"
+        >
+          <div
+            class="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500 mb-4"
+          ></div>
+          <p class="text-gray-500">Buscando huecos disponibles...</p>
+        </div>
+        <div v-else-if="disponibilidad.length === 0" class="text-center py-12">
+          <p class="text-gray-500 italic">
+            No hay horarios disponibles para los próximos días.
+          </p>
+          <button
+            @click="cargarDisponibilidad"
+            class="mt-4 text-teal-600 underline"
+          >
+            Reintentar
+          </button>
+        </div>
         <CalendarioReserva
+          v-else
           :disponibilidad="disponibilidad"
           :hora-seleccionada="reserva.horaInicio"
-          :cargando="cargandoDisponibilidad"
           @seleccionar-dia="seleccionarDia"
           @seleccionar-hora="seleccionarHora"
         />
       </div>
 
-      <!-- Paso 4: Confirmación -->
-      <div v-show="currentStep === 3">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4">Resumen de tu Cita</h3>
-
-        <div class="space-y-4 bg-gray-50 rounded-lg p-6">
-          <div class="flex justify-between items-center pb-3 border-b">
-            <span class="text-sm text-gray-600">TRATAMIENTO</span>
-            <div class="text-right">
-              <p class="font-semibold text-gray-800">{{ reserva.servicio?.nombre }}</p>
-              <p class="text-sm text-gray-600">{{ reserva.servicio?.duracionMinutos }} min</p>
-            </div>
+      <div v-if="currentStep === 3">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">
+          Resumen de tu Cita
+        </h3>
+        <div class="space-y-4 bg-gray-50 rounded-lg p-6 border">
+          <div class="flex justify-between border-b pb-2">
+            <span class="text-gray-600 font-medium">Servicio:</span>
+            <span class="font-bold">{{ reserva.servicio?.nombre }}</span>
           </div>
-
-          <div class="flex justify-between items-center pb-3 border-b">
-            <span class="text-sm text-gray-600">PROFESIONAL</span>
-            <div class="text-right">
-              <p class="font-semibold text-gray-800">
-                {{ reserva.fisioterapeuta
-                  ? `${reserva.fisioterapeuta.nombre} ${reserva.fisioterapeuta.apellidos}`
-                  : 'Cualquiera disponible' }}
-              </p>
-            </div>
+          <div class="flex justify-between border-b pb-2">
+            <span class="text-gray-600 font-medium">Profesional:</span>
+            <span class="font-bold">{{
+              reserva.fisioterapeuta?.nombre || "Cualquier profesional"
+            }}</span>
           </div>
-
-          <div class="flex justify-between items-center pb-3 border-b">
-            <span class="text-sm text-gray-600">FECHA Y HORA</span>
-            <div class="text-right">
-              <p class="font-semibold text-gray-800">
-                {{ formatearFecha(reserva.fecha) }}
-              </p>
-              <p class="text-sm text-gray-600">{{ reserva.horaInicio }}</p>
-            </div>
+          <div class="flex justify-between border-b pb-2">
+            <span class="text-gray-600 font-medium">Fecha:</span>
+            <span class="font-bold">{{ formatearFecha(reserva.fecha) }}</span>
           </div>
-
-          <div class="flex justify-between items-center text-lg font-bold pt-3">
-            <span>PRECIO</span>
-            <span class="text-teal-600">{{ reserva.servicio?.precio }}€</span>
+          <div class="flex justify-between border-b pb-2">
+            <span class="text-gray-600 font-medium">Hora:</span>
+            <span class="font-bold text-teal-600 text-xl"
+              >{{ reserva.horaInicio }} h</span
+            >
           </div>
-        </div>
-
-        <div class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
-          <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-          </svg>
-          <div class="text-sm text-blue-800">
-            <p class="font-semibold mb-1">Política de cancelación:</p>
-            <p>La cancelación es gratuita hasta 24h antes de la cita. El pago se realizará en la clínica.</p>
+          <div class="flex justify-between pt-2 text-lg font-bold">
+            <span>Total:</span>
+            <span class="text-teal-700">{{ reserva.servicio?.precio }}€</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Botones de navegación -->
-    <div class="flex justify-between mt-6">
+    <div class="flex justify-between mt-8">
       <button
         v-if="currentStep > 0"
-        @click="anteriorPaso"
-        class="px-6 py-2 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition"
+        @click="currentStep--"
+        class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
       >
         Anterior
       </button>
       <div v-else></div>
-
       <button
         v-if="currentStep < 3"
         @click="siguientePaso"
         :disabled="!puedeAvanzar"
         :class="[
-          'px-6 py-2 rounded-lg transition font-semibold',
+          'px-8 py-2 rounded-lg font-bold transition',
           puedeAvanzar
-            ? 'bg-teal-500 text-white hover:bg-teal-600'
-            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            ? 'bg-teal-600 text-white'
+            : 'bg-gray-200 text-gray-400 cursor-not-allowed',
         ]"
       >
         Siguiente
       </button>
-
       <button
         v-else
         @click="confirmarReserva"
         :disabled="enviando"
-        :class="[
-          'px-8 py-2 rounded-lg transition font-semibold',
-          enviando
-            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            : 'bg-teal-500 text-white hover:bg-teal-600'
-        ]"
+        class="px-8 py-2 bg-teal-600 text-white rounded-lg font-bold hover:bg-teal-700 disabled:opacity-50"
       >
-        <span v-if="!enviando">Confirmar Reserva</span>
-        <span v-else class="flex items-center gap-2">
-          <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          Procesando...
-        </span>
+        {{ enviando ? "Procesando..." : "Confirmar Reserva" }}
       </button>
     </div>
 
-    <!-- Modal de éxito -->
     <div
       v-if="mostrarExito"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-      @click="cerrarModalExito"
+      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
     >
-      <div class="bg-white rounded-lg p-8 max-w-md text-center" @click.stop>
-        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-          </svg>
-        </div>
-        <h3 class="text-2xl font-bold text-gray-800 mb-2">¡Cita Confirmada!</h3>
-        <p class="text-gray-600 mb-6">
-          Hemos enviado un email con los detalles a tu correo. Te esperamos el {{ formatearFecha(reserva.fecha) }}.
-        </p>
-        <button
-          @click="volverAlPanel"
-          class="w-full bg-gray-800 text-white py-3 rounded-lg hover:bg-gray-900 transition font-semibold"
+      <div
+        class="bg-white p-8 rounded-xl max-w-sm w-full text-center shadow-2xl"
+      >
+        <div
+          class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-green-500 text-3xl"
         >
-          Volver al Panel
+          ✓
+        </div>
+        <h2 class="text-2xl font-bold mb-2">¡Cita Reservada!</h2>
+        <button
+          @click="router.push('/cliente')"
+          class="w-full bg-teal-600 text-white py-2 rounded-lg font-bold"
+        >
+          Ir a mis citas
         </button>
       </div>
     </div>
@@ -198,172 +189,161 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import SelectorServicio from '@/components/cliente/SelectorServicio.vue'
-import SelectorFisioterapeuta from '@/components/cliente/SelectorFisioterapeuta.vue'
-import CalendarioReserva from '@/components/cliente/CalendarioReserva.vue'
-import publicService from '@/services/publicService'
-import citaService from '@/services/citaService'
+import { ref, computed, onMounted, watch } from "vue";
+import { useRouter } from "vue-router";
+import SelectorServicio from "@/components/cliente/SelectorServicio.vue";
+import SelectorFisioterapeuta from "@/components/cliente/SelectorFisioterapeuta.vue";
+import CalendarioReserva from "@/components/cliente/CalendarioReserva.vue";
+import publicService from "@/services/publicService";
+import citaService from "@/services/citaService";
 
-const router = useRouter()
+const router = useRouter();
+const steps = ["Servicio", "Profesional", "Fecha/Hora", "Confirmar"];
+const currentStep = ref(0);
 
-const steps = ['Servicio', 'Profesional', 'Fecha/Hora', 'Confirmar']
-const currentStep = ref(0)
-
-const servicios = ref([])
-const fisioterapeutas = ref([])
-const disponibilidad = ref([])
+const servicios = ref([]);
+const fisioterapeutas = ref([]);
+const disponibilidad = ref([]);
+const cargandoDisponibilidad = ref(false);
+const enviando = ref(false);
+const mostrarExito = ref(false);
 
 const reserva = ref({
   servicio: null,
   fisioterapeuta: null,
   fecha: null,
-  horaInicio: null
-})
+  horaInicio: null,
+});
 
-const cargandoDisponibilidad = ref(false)
-const enviando = ref(false)
-const mostrarExito = ref(false)
-
-// Cargar datos iniciales
 onMounted(async () => {
   try {
-    const [serviciosData, fisiosData] = await Promise.all([
+    console.log("RESERVA: Cargando datos iniciales...");
+    const [sData, fData] = await Promise.all([
       publicService.getServicios(),
-      publicService.getFisioterapeutas()
-    ])
-    servicios.value = serviciosData.filter(s => s.activo)
-    fisioterapeutas.value = fisiosData.filter(f => f.activo)
+      publicService.getFisioterapeutas(),
+    ]);
+    console.log("RESERVA: Servicios recibidos:", sData);
+    console.log("RESERVA: Fisios recibidos:", fData);
+
+    servicios.value = Array.isArray(sData) ? sData.filter((s) => s.activo) : [];
+    fisioterapeutas.value = Array.isArray(fData)
+      ? fData.filter((f) => f.activo)
+      : [];
+
+    console.log("RESERVA: Fisios tras filtrar:", fisioterapeutas.value);
   } catch (error) {
-    console.error('Error cargando datos:', error)
-    alert('Error al cargar los datos. Por favor, recarga la página.')
+    console.error("RESERVA: Error en onMounted:", error);
   }
-})
+});
 
-// Computed
 const puedeAvanzar = computed(() => {
-  switch (currentStep.value) {
-    case 0:
-      return reserva.value.servicio !== null
-    case 1:
-      return true // Siempre puede avanzar (puede elegir "cualquiera")
-    case 2:
-      return reserva.value.fecha !== null && reserva.value.horaInicio !== null
-    default:
-      return false
-  }
-})
+  if (currentStep.value === 0) return !!reserva.value.servicio;
+  if (currentStep.value === 1) return true;
+  if (currentStep.value === 2)
+    return reserva.value.fecha && reserva.value.horaInicio;
+  return false;
+});
 
-// Métodos
-const seleccionarServicio = (servicio) => {
-  reserva.value.servicio = servicio
-}
+const seleccionarServicio = (s) => {
+  reserva.value.servicio = s;
+  reserva.value.fecha = null;
+  reserva.value.horaInicio = null;
+};
 
-const seleccionarFisioterapeuta = async (fisioterapeuta) => {
-  reserva.value.fisioterapeuta = fisioterapeuta
+const seleccionarFisioterapeuta = (f) => {
+  reserva.value.fisioterapeuta = f;
+  reserva.value.fecha = null;
+  reserva.value.horaInicio = null;
+};
 
-  // Cargar disponibilidad cuando se selecciona fisioterapeuta
-  if (fisioterapeuta) {
-    await cargarDisponibilidad(fisioterapeuta.usuarioId)
-  } else {
-    // Si selecciona "cualquiera", cargar del primer fisio disponible
-    if (fisioterapeutas.value.length > 0) {
-      await cargarDisponibilidad(fisioterapeutas.value[0].usuarioId)
-    }
-  }
-}
-
-const cargarDisponibilidad = async (fisioId) => {
-  if (!reserva.value.servicio) {
-    console.warn('No se puede cargar disponibilidad sin servicio seleccionado')
-    return
+const cargarDisponibilidad = async () => {
+  // 1. Validar servicio
+  if (!reserva.value.servicio?.id) {
+    console.warn("RESERVA: No hay servicio seleccionado aún.");
+    return;
   }
 
-  cargandoDisponibilidad.value = true
+  // 2. Obtener el ID del fisio (del seleccionado o del primero de la lista)
+  // Añadimos una comprobación extra para asegurarnos de que el array tiene datos
+  let fisioId = reserva.value.fisioterapeuta?.usuarioId;
+
+  if (!fisioId && fisioterapeutas.value && fisioterapeutas.value.length > 0) {
+    fisioId = fisioterapeutas.value[0].usuarioId;
+    console.log("RESERVA: Usando fisio por defecto ID:", fisioId);
+  }
+
+  if (!fisioId) {
+    console.error(
+      "RESERVA: Lista de fisioterapeutas vacía o no cargada todavía.",
+    );
+    // Reintento automático en 500ms si la lista sigue vacía (por si es lag de red)
+    setTimeout(cargarDisponibilidad, 500);
+    return;
+  }
+
+  cargandoDisponibilidad.value = true;
   try {
-    const hoy = new Date().toISOString().split('T')[0]
-    disponibilidad.value = await citaService.getDisponibilidadConServicio(
+    const hoy = new Date().toISOString().split("T")[0];
+    console.log(
+      `RESERVA: Consultando API para fisio ${fisioId} y servicio ${reserva.value.servicio.id}`,
+    );
+
+    const data = await citaService.getDisponibilidadConServicio(
       fisioId,
       reserva.value.servicio.id,
       hoy,
-      7
-    )
+      14,
+    );
+    disponibilidad.value = data || [];
   } catch (error) {
-    console.error('Error cargando disponibilidad:', error)
-    alert('Error al cargar disponibilidad. Intenta de nuevo.')
+    console.error("RESERVA: Error consultando disponibilidad:", error);
   } finally {
-    cargandoDisponibilidad.value = false
+    cargandoDisponibilidad.value = false;
   }
-}
+};
 
-const seleccionarDia = (fecha) => {
-  reserva.value.fecha = fecha
-  reserva.value.horaInicio = null // Reset hora al cambiar día
-}
-
-const seleccionarHora = (hora) => {
-  reserva.value.horaInicio = hora.substring(0, 5) // "09:00:00" -> "09:00"
-}
+watch(currentStep, (n) => {
+  if (n === 2) cargarDisponibilidad();
+});
 
 const siguientePaso = () => {
-  if (puedeAvanzar.value && currentStep.value < 3) {
-    currentStep.value++
-
-    // Al pasar al paso 3 (fecha/hora), cargar disponibilidad si no está cargada
-    if (currentStep.value === 2 && disponibilidad.value.length === 0) {
-      const fisioId = reserva.value.fisioterapeuta?.usuarioId || fisioterapeutas.value[0]?.usuarioId
-      if (fisioId) {
-        cargarDisponibilidad(fisioId)
-      }
-    }
-  }
-}
-
-const anteriorPaso = () => {
-  if (currentStep.value > 0) {
-    currentStep.value--
-  }
-}
+  if (puedeAvanzar.value) currentStep.value++;
+};
+const seleccionarDia = (f) => {
+  reserva.value.fecha = f;
+  reserva.value.horaInicio = null;
+};
+const seleccionarHora = (h) => {
+  reserva.value.horaInicio = h.substring(0, 5);
+};
 
 const confirmarReserva = async () => {
-  enviando.value = true
+  enviando.value = true;
   try {
     const payload = {
       servicioId: reserva.value.servicio.id,
-      fisioterapeutaId: reserva.value.fisioterapeuta?.usuarioId || fisioterapeutas.value[0].usuarioId,
+      fisioterapeutaId:
+        reserva.value.fisioterapeuta?.usuarioId ||
+        fisioterapeutas.value[0].usuarioId,
       fecha: reserva.value.fecha,
-      horaInicio: reserva.value.horaInicio + ':00' // "09:00" -> "09:00:00"
-    }
-
-    await citaService.reservarCita(payload)
-    mostrarExito.value = true
-  } catch (error) {
-    console.error('Error al reservar cita:', error)
-    const mensaje = error.response?.data?.message || 'Error al reservar la cita. Intenta de nuevo.'
-    alert(mensaje)
+      horaInicio: reserva.value.horaInicio + ":00",
+    };
+    await citaService.reservarCita(payload);
+    mostrarExito.value = true;
+  } catch (e) {
+    alert("Error: " + (e.response?.data?.message || e.message));
   } finally {
-    enviando.value = false
+    enviando.value = false;
   }
-}
+};
 
-const formatearFecha = (fecha) => {
-  if (!fecha) return ''
-  const date = new Date(fecha + 'T00:00:00')
-  return date.toLocaleDateString('es-ES', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
-}
-
-const cerrarModalExito = () => {
-  mostrarExito.value = false
-  volverAlPanel()
-}
-
-const volverAlPanel = () => {
-  router.push('/cliente')
-}
+const formatearFecha = (f) => {
+  if (!f) return "";
+  return new Date(f + "T00:00:00").toLocaleDateString("es-ES", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+};
 </script>

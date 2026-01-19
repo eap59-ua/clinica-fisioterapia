@@ -3,39 +3,34 @@ spring:
     name: clinica-fisioterapia
 
   datasource:
-    url: jdbc:postgresql://localhost:5433/clinica_fisioterapia_dev
-    username: postgres
-    password: postgres  # ⚠️ Contraseña de tu postgres
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5433/clinica_fisioterapia_dev}
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
-      ddl-auto: update  # Cambiado a 'update' para que Hibernate cree las columnas faltantes
-    show-sql: true
+      ddl-auto: update
+    show-sql: ${SHOW_SQL:false}
     properties:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
-  security:
-    user:
-      name: admin
-      password: admin123
-
 server:
-  port: 8080
+  port: ${PORT:8080}
   servlet:
     context-path: /api
 
 # JWT Configuration
 jwt:
-  secret: 5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437  # Clave secreta 256-bit
-  expiration: 86400000  # 24 horas en milisegundos
+  secret: ${JWT_SECRET:5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437}
+  expiration: 86400000
 
 logging:
   level:
-    com.clinica.fisioterapia: DEBUG
-    org.springframework.security: DEBUG
+    com.clinica.fisioterapia: ${LOG_LEVEL:INFO}
+    org.springframework.security: ${LOG_LEVEL:INFO}
 
 # TPV Integration Configuration
 tpv:
@@ -43,8 +38,12 @@ tpv:
   merchant-id: CLINICA_FISIO_001
   api-key: ${TPV_API_KEY:YOUR_API_KEY_HERE}
   api-secret: ${TPV_API_SECRET:YOUR_API_SECRET_HERE}
-  callback-url: http://localhost:8080/api/pagos/callback
-  success-url: http://localhost:5173/cliente/pago-exitoso
-  error-url: http://localhost:5173/cliente/pago-error
+  callback-url: ${BACKEND_URL:http://localhost:8080}/api/pagos/callback
+  success-url: ${FRONTEND_URL:http://localhost:5173}/cliente/pago-exitoso
+  error-url: ${FRONTEND_URL:http://localhost:5173}/cliente/pago-error
   enabled: true
-  mock-mode: true  # Cambiar a false en producción
+  mock-mode: ${TPV_MOCK_MODE:true}
+
+# CORS Configuration
+cors:
+  allowed-origins: ${CORS_ORIGINS:http://localhost:5173,http://localhost:3000}
