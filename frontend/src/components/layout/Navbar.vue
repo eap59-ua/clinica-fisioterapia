@@ -171,7 +171,7 @@
   </nav>
 
   <!-- Spacer for fixed navbar -->
-  <div class="h-18 pt-4"></div>
+  <div class="h-20"></div>
 </template>
 
 <script setup>
