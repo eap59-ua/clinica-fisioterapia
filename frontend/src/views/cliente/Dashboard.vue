@@ -1,119 +1,227 @@
 <template>
-  <div class="min-h-screen bg-gray-50 py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="mb-8">
-        <h1 class="text-3xl font-bold">Bienvenido, {{ authStore.userName }}</h1>
-        <p class="text-gray-600">Panel de cliente</p>
-      </div>
-
-      <!-- Estadísticas rápidas -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div class="bg-white rounded-lg shadow-md p-6">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-gray-500 text-sm">Próximas Citas</p>
-              <p class="text-3xl font-bold text-primary">3</p>
-            </div>
-            <div class="text-4xl">📅</div>
+  <div class="min-h-screen bg-gradient-to-br from-dark-50 via-primary-50/20 to-secondary-50/20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Header -->
+      <div class="mb-8 animate-fade-in-up">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 class="font-display text-3xl font-bold text-dark-800">
+              Hola, {{ authStore.userName }}
+            </h1>
+            <p class="text-dark-500 mt-1">Bienvenido a tu panel de cliente</p>
           </div>
-        </div>
-
-        <div class="bg-white rounded-lg shadow-md p-6">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-gray-500 text-sm">Citas Completadas</p>
-              <p class="text-3xl font-bold text-green-600">12</p>
-            </div>
-            <div class="text-4xl">✅</div>
-          </div>
-        </div>
-
-        <div class="bg-white rounded-lg shadow-md p-6">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-gray-500 text-sm">Gastos Total</p>
-              <p class="text-3xl font-bold text-gray-700">540€</p>
-            </div>
-            <div class="text-4xl">💰</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Acciones rápidas -->
-      <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-2xl font-bold mb-6">Acciones Rápidas</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <button
             @click="$router.push('/cliente/reservar-cita')"
-            class="flex items-center justify-center gap-2 bg-teal-500 text-white py-3 px-4 rounded-lg hover:bg-teal-600 transition"
+            class="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white px-6 py-3 rounded-xl font-semibold shadow-soft hover:shadow-glow transition-all duration-300 hover:-translate-y-0.5"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
-            Reservar Cita
-          </button>
-
-          <button
-            @click="$router.push('/cliente/mis-citas')"
-            class="flex items-center justify-center gap-2 bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 transition"
-          >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            Ver Mis Citas
-          </button>
-
-          <button
-            class="flex items-center justify-center gap-2 bg-gray-500 text-white py-3 px-4 rounded-lg hover:bg-gray-600 transition"
-          >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-            Editar Perfil
+            Nueva Cita
           </button>
         </div>
       </div>
 
-      <!-- Próximas citas -->
-      <div class="bg-white rounded-lg shadow-md p-6">
-        <h2 class="text-2xl font-bold mb-6">Próximas Citas</h2>
+      <!-- Stats Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white rounded-2xl shadow-soft p-6 border border-dark-100 animate-fade-in-up" style="animation-delay: 0.1s;">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-dark-500">Próximas Citas</p>
+              <p class="text-3xl font-bold text-primary-600 mt-1">3</p>
+            </div>
+            <div class="w-14 h-14 bg-gradient-to-br from-primary-100 to-primary-200 rounded-2xl flex items-center justify-center">
+              <svg class="w-7 h-7 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+          </div>
+          <div class="mt-4 flex items-center text-sm">
+            <span class="text-primary-600 font-medium">Ver agenda</span>
+            <svg class="w-4 h-4 ml-1 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-soft p-6 border border-dark-100 animate-fade-in-up" style="animation-delay: 0.2s;">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-dark-500">Citas Completadas</p>
+              <p class="text-3xl font-bold text-green-600 mt-1">12</p>
+            </div>
+            <div class="w-14 h-14 bg-gradient-to-br from-green-100 to-green-200 rounded-2xl flex items-center justify-center">
+              <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+          </div>
+          <div class="mt-4 flex items-center text-sm">
+            <span class="text-green-600 font-medium">Ver historial</span>
+            <svg class="w-4 h-4 ml-1 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-soft p-6 border border-dark-100 animate-fade-in-up" style="animation-delay: 0.3s;">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-dark-500">Gasto Total</p>
+              <p class="text-3xl font-bold text-dark-800 mt-1">540€</p>
+            </div>
+            <div class="w-14 h-14 bg-gradient-to-br from-accent-100 to-accent-200 rounded-2xl flex items-center justify-center">
+              <svg class="w-7 h-7 text-accent-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+          </div>
+          <div class="mt-4 flex items-center text-sm">
+            <span class="text-dark-500">Este año</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="bg-white rounded-2xl shadow-soft p-6 border border-dark-100 mb-8 animate-fade-in-up" style="animation-delay: 0.4s;">
+        <h2 class="font-display text-xl font-bold text-dark-800 mb-6">Acciones Rápidas</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <button
+            @click="$router.push('/cliente/reservar-cita')"
+            class="group flex items-center gap-4 p-4 rounded-xl bg-gradient-to-br from-primary-50 to-primary-100 border border-primary-200 hover:shadow-soft transition-all duration-300"
+          >
+            <div class="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+            </div>
+            <div class="text-left">
+              <p class="font-semibold text-dark-800">Reservar Cita</p>
+              <p class="text-sm text-dark-500">Agenda una nueva sesión</p>
+            </div>
+          </button>
+
+          <button
+            @click="$router.push('/cliente/mis-citas')"
+            class="group flex items-center gap-4 p-4 rounded-xl bg-gradient-to-br from-secondary-50 to-secondary-100 border border-secondary-200 hover:shadow-soft transition-all duration-300"
+          >
+            <div class="w-12 h-12 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <div class="text-left">
+              <p class="font-semibold text-dark-800">Ver Mis Citas</p>
+              <p class="text-sm text-dark-500">Consulta tu agenda</p>
+            </div>
+          </button>
+
+          <button
+            class="group flex items-center gap-4 p-4 rounded-xl bg-gradient-to-br from-dark-50 to-dark-100 border border-dark-200 hover:shadow-soft transition-all duration-300"
+          >
+            <div class="w-12 h-12 bg-gradient-to-br from-dark-500 to-dark-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
+            <div class="text-left">
+              <p class="font-semibold text-dark-800">Editar Perfil</p>
+              <p class="text-sm text-dark-500">Actualiza tus datos</p>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Upcoming Appointments -->
+      <div class="bg-white rounded-2xl shadow-soft p-6 border border-dark-100 animate-fade-in-up" style="animation-delay: 0.5s;">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="font-display text-xl font-bold text-dark-800">Próximas Citas</h2>
+          <router-link
+            to="/cliente/mis-citas"
+            class="text-primary-600 hover:text-primary-700 font-medium text-sm flex items-center gap-1"
+          >
+            Ver todas
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </router-link>
+        </div>
+
         <div class="space-y-4">
-          <div class="border-l-4 border-primary bg-gray-50 p-4 rounded">
-            <div class="flex justify-between items-start">
-              <div>
-                <h3 class="font-bold text-lg">Masaje Terapéutico</h3>
-                <p class="text-gray-600">Dr. Antonio Ruiz Fernández</p>
-                <p class="text-sm text-gray-500 mt-2">
-                  📅 15 Diciembre 2025 - 10:00h
-                </p>
-                <p class="text-sm text-gray-500">📍 Sala 2 - Masajes</p>
-              </div>
-              <div class="text-right">
-                <span
-                  class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm"
-                >
-                  Pendiente
-                </span>
+          <!-- Appointment Card 1 -->
+          <div class="group relative overflow-hidden rounded-xl border border-dark-100 hover:border-primary-200 hover:shadow-soft transition-all duration-300">
+            <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary-500 to-primary-600"></div>
+            <div class="p-5 pl-6">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="flex items-start gap-4">
+                  <div class="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="font-semibold text-dark-800 text-lg">Masaje Terapéutico</h3>
+                    <p class="text-dark-500 text-sm">Dr. Antonio Ruiz Fernández</p>
+                    <div class="flex flex-wrap items-center gap-3 mt-2 text-sm text-dark-500">
+                      <span class="inline-flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        15 Dic 2025 - 10:00h
+                      </span>
+                      <span class="inline-flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        </svg>
+                        Sala 2 - Masajes
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3 sm:flex-col sm:items-end">
+                  <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">
+                    Pendiente
+                  </span>
+                </div>
               </div>
             </div>
           </div>
 
-          <div class="border-l-4 border-primary bg-gray-50 p-4 rounded">
-            <div class="flex justify-between items-start">
-              <div>
-                <h3 class="font-bold text-lg">Rehabilitación Deportiva</h3>
-                <p class="text-gray-600">Dra. Elena Jiménez Torres</p>
-                <p class="text-sm text-gray-500 mt-2">
-                  📅 18 Diciembre 2025 - 16:30h
-                </p>
-                <p class="text-sm text-gray-500">📍 Sala 3 - Gimnasio</p>
-              </div>
-              <div class="text-right">
-                <span
-                  class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm"
-                >
-                  Pendiente
-                </span>
+          <!-- Appointment Card 2 -->
+          <div class="group relative overflow-hidden rounded-xl border border-dark-100 hover:border-primary-200 hover:shadow-soft transition-all duration-300">
+            <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-secondary-500 to-secondary-600"></div>
+            <div class="p-5 pl-6">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="flex items-start gap-4">
+                  <div class="w-12 h-12 bg-secondary-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <svg class="w-6 h-6 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="font-semibold text-dark-800 text-lg">Rehabilitación Deportiva</h3>
+                    <p class="text-dark-500 text-sm">Dra. Elena Jiménez Torres</p>
+                    <div class="flex flex-wrap items-center gap-3 mt-2 text-sm text-dark-500">
+                      <span class="inline-flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        18 Dic 2025 - 16:30h
+                      </span>
+                      <span class="inline-flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        </svg>
+                        Sala 3 - Gimnasio
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3 sm:flex-col sm:items-end">
+                  <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">
+                    Pendiente
+                  </span>
+                </div>
               </div>
             </div>
           </div>

@@ -36,3 +36,15 @@ logging:
   level:
     com.clinica.fisioterapia: DEBUG
     org.springframework.security: DEBUG
+
+# TPV Integration Configuration
+tpv:
+  base-url: https://tpv-backend-cbbg.onrender.com
+  merchant-id: CLINICA_FISIO_001
+  api-key: ${TPV_API_KEY:YOUR_API_KEY_HERE}
+  api-secret: ${TPV_API_SECRET:YOUR_API_SECRET_HERE}
+  callback-url: http://localhost:8080/api/pagos/callback
+  success-url: http://localhost:5173/cliente/pago-exitoso
+  error-url: http://localhost:5173/cliente/pago-error
+  enabled: true
+  mock-mode: true  # Cambiar a false en producción

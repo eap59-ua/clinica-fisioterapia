@@ -56,6 +56,18 @@ const router = createRouter({
       meta: { requiresAuth: true, role: "CLIENTE" },
     },
     {
+      path: "/cliente/pago-exitoso",
+      name: "pago-exitoso",
+      component: () => import("../views/cliente/PagoExitoso.vue"),
+      meta: { requiresAuth: true, role: "CLIENTE" },
+    },
+    {
+      path: "/cliente/pago-error",
+      name: "pago-error",
+      component: () => import("../views/cliente/PagoError.vue"),
+      meta: { requiresAuth: true, role: "CLIENTE" },
+    },
+    {
       path: "/recepcionista",
       redirect: "/recepcionista/dashboard"
     },
@@ -121,6 +133,24 @@ const router = createRouter({
       path: '/admin/salas',
       component: SalasManagement
     },
+      path: '/recepcionista/editar-cita/:id', // IMPORTANTE: :id
+      name: 'EditarCita',
+      component: () => import('../views/recepcionista/EditarCita.vue'),
+      meta: { requiresAuth: true, role: 'RECEPCIONISTA' } // O tus guards
+    },
+
+    {
+      path: '/recepcionista/configuracion-horarios',
+      name: 'ConfiguracionHorario',
+      component: () => import('../views/recepcionista/ConfiguracionHorario.vue'),
+      meta: { requiresAuth: true, role: 'RECEPCIONISTA' }
+    },
+    {
+      path: '/recepcionista/bloqueos', // Puedes acceder a esta desde un botón en ConfiguracionHorario si quieres
+      name: 'GestionBloqueos',
+      component: () => import('../views/recepcionista/GestionBloqueos.vue'),
+      meta: { requiresAuth: true, role: 'RECEPCIONISTA' }
+    }
   ],
 });
 
