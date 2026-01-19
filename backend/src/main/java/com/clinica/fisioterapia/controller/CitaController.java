@@ -18,7 +18,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/citas")
+@RequestMapping({"/citas", "/api/citas"})
 @RequiredArgsConstructor
 public class CitaController {
 

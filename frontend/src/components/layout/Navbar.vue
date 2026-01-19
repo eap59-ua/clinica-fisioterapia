@@ -1,16 +1,33 @@
 <template>
-  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-dark-100 shadow-soft">
+  <nav
+    class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-dark-100 shadow-soft"
+  >
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between h-18 py-3">
         <!-- Logo -->
         <div class="flex items-center">
           <router-link to="/" class="flex items-center gap-3 group">
-            <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-soft group-hover:shadow-glow transition-all duration-300">
-              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+            <div
+              class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-soft group-hover:shadow-glow transition-all duration-300"
+            >
+              <svg
+                class="w-5 h-5 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                />
               </svg>
             </div>
-            <span class="font-display text-xl font-bold text-dark-800 hidden sm:block">FisioClínica</span>
+            <span
+              class="font-display text-xl font-bold text-dark-800 hidden sm:block"
+              >FisioClínica</span
+            >
           </router-link>
         </div>
 
@@ -67,13 +84,23 @@
           <template v-else>
             <!-- User Menu -->
             <div class="flex items-center gap-3">
-              <div class="hidden md:flex items-center gap-2 bg-dark-50 px-3 py-1.5 rounded-lg">
-                <div class="w-8 h-8 bg-gradient-to-br from-primary-400 to-primary-600 rounded-lg flex items-center justify-center">
-                  <span class="text-white text-sm font-semibold">{{ authStore.userName?.charAt(0)?.toUpperCase() }}</span>
+              <div
+                class="hidden md:flex items-center gap-2 bg-dark-50 px-3 py-1.5 rounded-lg"
+              >
+                <div
+                  class="w-8 h-8 bg-gradient-to-br from-primary-400 to-primary-600 rounded-lg flex items-center justify-center"
+                >
+                  <span class="text-white text-sm font-semibold">{{
+                    authStore.userName?.charAt(0)?.toUpperCase()
+                  }}</span>
                 </div>
                 <div class="text-sm">
-                  <p class="font-medium text-dark-800">{{ authStore.userName }}</p>
-                  <p class="text-xs text-dark-500 capitalize">{{ authStore.userRole?.toLowerCase() }}</p>
+                  <p class="font-medium text-dark-800">
+                    {{ authStore.userName }}
+                  </p>
+                  <p class="text-xs text-dark-500 capitalize">
+                    {{ authStore.userRole?.toLowerCase() }}
+                  </p>
                 </div>
               </div>
 
@@ -81,8 +108,18 @@
                 :to="`/${authStore.userRole.toLowerCase()}`"
                 class="inline-flex items-center gap-2 bg-primary-50 text-primary-600 px-4 py-2 rounded-xl font-medium hover:bg-primary-100 transition-all duration-200"
               >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+                  />
                 </svg>
                 <span class="hidden sm:inline">Mi Panel</span>
               </router-link>
@@ -91,8 +128,18 @@
                 @click="handleLogout"
                 class="inline-flex items-center gap-2 text-dark-500 hover:text-red-500 px-3 py-2 rounded-xl hover:bg-red-50 transition-all duration-200"
               >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                  />
                 </svg>
                 <span class="hidden md:inline">Salir</span>
               </button>
@@ -104,11 +151,33 @@
             @click="mobileMenuOpen = !mobileMenuOpen"
             class="lg:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl text-dark-600 hover:bg-dark-100 transition-colors"
           >
-            <svg v-if="!mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            <svg
+              v-if="!mobileMenuOpen"
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
             </svg>
-            <svg v-else class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            <svg
+              v-else
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
@@ -150,7 +219,10 @@
           Contacto
         </router-link>
 
-        <div v-if="!authStore.isAuthenticated" class="pt-4 border-t border-dark-100 space-y-2">
+        <div
+          v-if="!authStore.isAuthenticated"
+          class="pt-4 border-t border-dark-100 space-y-2"
+        >
           <router-link
             to="/login"
             @click="mobileMenuOpen = false"
