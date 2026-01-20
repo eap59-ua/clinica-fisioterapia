@@ -101,7 +101,7 @@ public class PagoController {
      * Callback POST del TPV (alternativo)
      * POST /api/pagos/callback
      */
-    @PostMapping("/callback")
+    @RequestMapping({"/pagos","/api/pagos"})
     public ResponseEntity<String> callbackPagoPost(
             @RequestParam(required = false) Long citaId,
             @RequestParam(required = false) String token,

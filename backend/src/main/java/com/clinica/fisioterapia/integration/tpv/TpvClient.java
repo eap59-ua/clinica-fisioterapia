@@ -55,10 +55,10 @@ public class TpvClient {
             log.debug("Llamando a TPV: POST {}", url);
 
             ResponseEntity<PagoResponse> response = restTemplate.exchange(
-                url,
-                HttpMethod.POST,
-                entity,
-                PagoResponse.class
+                    url,
+                    HttpMethod.POST,
+                    entity,
+                    PagoResponse.class
             );
 
             PagoResponse pagoResponse = response.getBody();
@@ -67,8 +67,8 @@ public class TpvClient {
                 pagoResponse.setStatus(PagoResponse.STATUS_PENDING);
                 pagoResponse.setTransactionId(pagoResponse.getToken()); // Alias para compatibilidad
                 log.info("Respuesta TPV: token={}, paymentUrl={}",
-                    pagoResponse.getToken(),
-                    pagoResponse.getPaymentUrl());
+                        pagoResponse.getToken(),
+                        pagoResponse.getPaymentUrl());
             }
 
             return pagoResponse;
@@ -76,10 +76,10 @@ public class TpvClient {
         } catch (RestClientException e) {
             log.error("Error al conectar con TPV: {}", e.getMessage(), e);
             return PagoResponse.builder()
-                .status(PagoResponse.STATUS_FAILED)
-                .errorCode("TPV_CONNECTION_ERROR")
-                .message("No se pudo conectar con el servidor de pagos: " + e.getMessage())
-                .build();
+                    .status(PagoResponse.STATUS_FAILED)
+                    .errorCode("TPV_CONNECTION_ERROR")
+                    .message("No se pudo conectar con el servidor de pagos: " + e.getMessage())
+                    .build();
         }
     }
 
@@ -103,10 +103,10 @@ public class TpvClient {
             log.debug("Llamando a TPV: GET {}", url);
 
             ResponseEntity<PagoResponse> response = restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                entity,
-                PagoResponse.class
+                    url,
+                    HttpMethod.GET,
+                    entity,
+                    PagoResponse.class
             );
 
             PagoResponse pagoResponse = response.getBody();
@@ -121,11 +121,11 @@ public class TpvClient {
         } catch (RestClientException e) {
             log.error("Error al verificar pago: {}", e.getMessage(), e);
             return PagoResponse.builder()
-                .token(token)
-                .transactionId(token)
-                .status("UNKNOWN")
-                .message("No se pudo verificar el estado del pago: " + e.getMessage())
-                .build();
+                    .token(token)
+                    .transactionId(token)
+                    .status("UNKNOWN")
+                    .message("No se pudo verificar el estado del pago: " + e.getMessage())
+                    .build();
         }
     }
 
@@ -138,20 +138,20 @@ public class TpvClient {
 
         if (config.isMockMode()) {
             return PagoResponse.builder()
-                .token(token)
-                .transactionId(token)
-                .status(PagoResponse.STATUS_REFUNDED)
-                .message("Reembolso procesado correctamente (MOCK)")
-                .build();
+                    .token(token)
+                    .transactionId(token)
+                    .status(PagoResponse.STATUS_REFUNDED)
+                    .message("Reembolso procesado correctamente (MOCK)")
+                    .build();
         }
 
         try {
             HttpHeaders headers = createHeaders();
 
             RefundRequest refundRequest = RefundRequest.builder()
-                .transactionToken(token)
-                .amount(amount)
-                .build();
+                    .transactionToken(token)
+                    .amount(amount)
+                    .build();
 
             HttpEntity<RefundRequest> entity = new HttpEntity<>(refundRequest, headers);
 
@@ -159,30 +159,30 @@ public class TpvClient {
             log.debug("Llamando a TPV: POST {}", url);
 
             ResponseEntity<Map> response = restTemplate.exchange(
-                url,
-                HttpMethod.POST,
-                entity,
-                Map.class
+                    url,
+                    HttpMethod.POST,
+                    entity,
+                    Map.class
             );
 
             Map responseBody = response.getBody();
             log.info("Respuesta reembolso: {}", responseBody);
 
             return PagoResponse.builder()
-                .token(token)
-                .transactionId(token)
-                .status(PagoResponse.STATUS_REFUNDED)
-                .message("Reembolso procesado correctamente")
-                .build();
+                    .token(token)
+                    .transactionId(token)
+                    .status(PagoResponse.STATUS_REFUNDED)
+                    .message("Reembolso procesado correctamente")
+                    .build();
 
         } catch (RestClientException e) {
             log.error("Error al solicitar reembolso: {}", e.getMessage(), e);
             return PagoResponse.builder()
-                .token(token)
-                .transactionId(token)
-                .status(PagoResponse.STATUS_FAILED)
-                .message("Error al procesar el reembolso: " + e.getMessage())
-                .build();
+                    .token(token)
+                    .transactionId(token)
+                    .status(PagoResponse.STATUS_FAILED)
+                    .message("Error al procesar el reembolso: " + e.getMessage())
+                    .build();
         }
     }
 
@@ -211,24 +211,24 @@ public class TpvClient {
         log.info("[MOCK] Pago simulado iniciado: token={}", mockToken);
 
         return PagoResponse.builder()
-            .token(mockToken)
-            .transactionId(mockToken)
-            .status(PagoResponse.STATUS_PENDING)
-            .paymentUrl("http://localhost:5173/cliente/mock-pago?txn=" + mockToken
-                + "&amount=" + request.getAmount()
-                + "&orderId=" + request.getOrderId())
-            .message("Pago iniciado correctamente (MOCK)")
-            .build();
+                .token(mockToken)
+                .transactionId(mockToken)
+                .status(PagoResponse.STATUS_PENDING)
+                .paymentUrl("http://localhost:5173/cliente/mock-pago?txn=" + mockToken
+                        + "&amount=" + request.getAmount()
+                        + "&orderId=" + request.getOrderId())
+                .message("Pago iniciado correctamente (MOCK)")
+                .build();
     }
 
     private PagoResponse mockVerificarPago(String token) {
         log.info("[MOCK] Verificando pago simulado: token={}", token);
 
         return PagoResponse.builder()
-            .token(token)
-            .transactionId(token)
-            .status(PagoResponse.STATUS_COMPLETED)
-            .message("Pago completado correctamente (MOCK)")
-            .build();
+                .token(token)
+                .transactionId(token)
+                .status(PagoResponse.STATUS_COMPLETED)
+                .message("Pago completado correctamente (MOCK)")
+                .build();
     }
 }

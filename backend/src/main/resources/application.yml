@@ -36,13 +36,13 @@ logging:
 tpv:
   base-url: https://tpv-backend-cbbg.onrender.com
   merchant-id: CLINICA_FISIO_001
-  api-key: ${TPV_API_KEY:YOUR_API_KEY_HERE}
+  api-key: ${TPV_API_KEY:sk_fa4f4210-5a97-41d5-85db-b704a8763d53}
   api-secret: ${TPV_API_SECRET:YOUR_API_SECRET_HERE}
   callback-url: ${BACKEND_URL:http://localhost:8080}/api/pagos/callback
   success-url: ${FRONTEND_URL:http://localhost:5173}/cliente/pago-exitoso
   error-url: ${FRONTEND_URL:http://localhost:5173}/cliente/pago-error
   enabled: true
-  mock-mode: ${TPV_MOCK_MODE:true}
+  mock-mode: ${TPV_MOCK_MODE:false}
 
 # CORS Configuration
 cors:

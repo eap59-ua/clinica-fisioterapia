@@ -28,6 +28,8 @@ public class CitaDTO {
     private EstadoCita estado;
     private String notas;
     private BigDecimal precioPagado;
+    // Estado del pago asociado a la cita (TPV)
+    private String estadoPago;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
