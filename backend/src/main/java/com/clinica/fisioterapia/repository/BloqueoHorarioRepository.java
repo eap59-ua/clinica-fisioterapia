@@ -29,4 +29,15 @@ public interface BloqueoHorarioRepository extends JpaRepository<BloqueoHorario, 
             ":fechaHora BETWEEN b.fechaInicio AND b.fechaFin")
     List<BloqueoHorario> encontrarBloqueos(@Param("fisioId") Long fisioId,
                                            @Param("fechaHora") LocalDateTime fechaHora);
+
+    // === ESTA ES LA CLAVE ===
+    // Busca intersección de horarios:
+    // 1. Que sea del Fisio O que sea GLOBAL (festivo).
+    // 2. Que el bloqueo empiece antes de que acabe la cita Y termine después de que empiece.
+    @Query("SELECT b FROM BloqueoHorario b WHERE " +
+            "(b.tipo = 'GLOBAL' OR b.fisioterapeuta.id = :fisioId) " +
+            "AND (b.fechaInicio < :fin AND b.fechaFin > :inicio)")
+    List<BloqueoHorario> encontrarBloqueos(@Param("fisioId") Long fisioId,
+                                           @Param("inicio") LocalDateTime inicio,
+                                           @Param("fin") LocalDateTime fin);
 }

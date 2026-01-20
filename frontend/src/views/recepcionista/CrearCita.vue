@@ -255,13 +255,13 @@ const alCambiarServicio = () => {
 
 // -- GESTIÓN DE HUECOS (DISPONIBILIDAD) --
 const buscarHuecos = async () => {
-  // Validaciones antes de llamar al servidor
   if (!form.value.fisioterapeuta.id) {
     alert("Seleccione primero un Fisioterapeuta.");
     return;
   }
+  // Validación de servicio y fecha se mantiene...
   if (!form.value.servicio.id || !duracionEstimada.value) {
-    alert("Seleccione primero un Servicio para saber la duración.");
+    alert("Seleccione primero un Servicio.");
     return;
   }
   if (!form.value.fecha) {
@@ -274,15 +274,17 @@ const buscarHuecos = async () => {
   mostrandoHuecos.value = true;
 
   try {
+    // AQUI EL CAMBIO: Pasamos también la sala
     const res = await recepcionistaService.getHuecosLibres(
       form.value.fecha,
       form.value.fisioterapeuta.id,
+      form.value.sala.id, // <--- NUEVO ARGUMENTO
       duracionEstimada.value
     );
     huecosDisponibles.value = res.data;
   } catch (error) {
     console.error(error);
-    alert("Error al obtener disponibilidad. Intente de nuevo.");
+    alert("Error al obtener disponibilidad.");
     mostrandoHuecos.value = false;
   } finally {
     cargandoHuecos.value = false;

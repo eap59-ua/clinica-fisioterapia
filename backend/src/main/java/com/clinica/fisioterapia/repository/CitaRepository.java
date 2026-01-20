@@ -115,4 +115,10 @@ public interface CitaRepository extends JpaRepository<Cita, Long> {
     // Sumar ingresos en un rango de fechas
     @Query("SELECT SUM(c.precioPagado) FROM Cita c WHERE c.fecha BETWEEN :inicio AND :fin AND c.estado = 'COMPLETADA'")
     BigDecimal sumPrecioPagadoByFechaBetween(@Param("inicio") LocalDate inicio, @Param("fin") LocalDate fin);
+
+    // Necesario para verificar si la sala está ocupada por OTRO fisio
+    @Query("SELECT c FROM Cita c " +
+            "WHERE c.sala.id = :salaId AND c.fecha = :fecha " +
+            "AND c.estado != 'CANCELADA'")
+    List<Cita> findBySalaIdAndFecha(@Param("salaId") Long salaId, @Param("fecha") LocalDate fecha);
 }

@@ -45,9 +45,15 @@ export default {
       return api.put(`/recepcionista/citas/${id}`, cita);
     },
 
-    getHuecosLibres(fecha, fisioterapeutaId, duracion) {
-      return api.get(`/recepcionista/disponibilidad`, {
-        params: { fecha, fisioterapeutaId, duracion }
-      });
+    getHuecosLibres(fecha, fisioterapeutaId, salaId, duracion) { // <--- AÑADIDO PARAMETRO salaId
+        // Creamos el objeto params dinámicamente
+        const params = { fecha, fisioterapeutaId, duracion };
+
+        // Solo enviamos salaId si tiene valor (no null ni string vacio)
+        if (salaId) {
+            params.salaId = salaId;
+        }
+
+        return api.get(`/recepcionista/disponibilidad`, { params });
     }
 };
