@@ -1,10 +1,7 @@
 package com.clinica.fisioterapia.service;
 
 import com.clinica.fisioterapia.dto.CitaDTO;
-import com.clinica.fisioterapia.entity.Cita;
-import com.clinica.fisioterapia.entity.Cliente;
-import com.clinica.fisioterapia.entity.EstadoCita;
-import com.clinica.fisioterapia.entity.HorarioClinica;
+import com.clinica.fisioterapia.entity.*;
 import com.clinica.fisioterapia.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,6 +24,7 @@ public class RecepcionistaService {
     private final ClienteRepository clienteRepository;
     private final HorarioClinicaRepository horarioRepository;
     private final BloqueoHorarioRepository bloqueoRepository;
+    private final ServicioRepository servicioRepository;
 
     @Transactional(readOnly = true)
     public List<CitaDTO> obtenerCitasDelDia(LocalDate fecha) {
@@ -51,21 +49,32 @@ public class RecepcionistaService {
 
     @Transactional
     public CitaDTO crearCita(Cita cita) {
-        // 1. Lógica de negocio: Validar/Rellenar datos
         if (cita.getEstado() == null) {
             cita.setEstado(EstadoCita.PENDIENTE);
         }
 
-        // Calcular hora fin si no viene (para evitar el error SQL)
-        if (cita.getHoraFin() == null && cita.getHoraInicio() != null) {
-            // Asumimos 1 hora por defecto si no se especifica
-            cita.setHoraFin(cita.getHoraInicio().plusHours(1));
-        }
+        // 1. OBTENER DATOS REALES DEL SERVICIO (Seguridad)
+        // No nos fiamos de la duración que viene del JSON, la buscamos en BD.
+        Servicio servicioReal = servicioRepository.findById(cita.getServicio().getId())
+                .orElseThrow(() -> new RuntimeException("El servicio especificado no existe"));
 
-        // 2. Guardar entidad
+        cita.setServicio(servicioReal);
+
+        // Calcular hora fin exacta
+        cita.setHoraFin(cita.getHoraInicio().plusMinutes(servicioReal.getDuracionMinutos()));
+
+        // 2. VALIDAR DISPONIBILIDAD (Fisio + Sala + Bloqueos)
+        validarDisponibilidad(
+                cita.getFisioterapeuta().getId(),
+                cita.getSala() != null ? cita.getSala().getId() : null,
+                cita.getFecha(),
+                cita.getHoraInicio(),
+                cita.getHoraFin(),
+                null // null porque es nueva cita
+        );
+
+        // 3. GUARDAR
         Cita citaGuardada = citaRepository.save(cita);
-
-        // 3. Devolver DTO (Aquí evitamos el error de recursividad)
         return convertirACitaDTO(citaGuardada);
     }
 
@@ -131,49 +140,50 @@ public class RecepcionistaService {
     }
 
     @Transactional
-    public CitaDTO actualizarCita(Long id, Cita citaDatosNuevos) {
-        // 1. Buscar la cita original
+    public CitaDTO actualizarCita(Long id, Cita datos) {
         Cita citaExistente = citaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
 
-        // 2. Actualizar campos permitidos
-        // NOTA: No permitimos cambiar el Cliente de una cita ya creada (regla de negocio habitual),
-        // pero sí el fisio, servicio, fecha, etc.
+        // 1. ACTUALIZAR CAMPOS BÁSICOS
+        citaExistente.setFisioterapeuta(datos.getFisioterapeuta());
+        citaExistente.setSala(datos.getSala());
+        citaExistente.setFecha(datos.getFecha());
+        citaExistente.setHoraInicio(datos.getHoraInicio());
+        if (datos.getNotas() != null) citaExistente.setNotas(datos.getNotas());
 
-        citaExistente.setFisioterapeuta(citaDatosNuevos.getFisioterapeuta());
-        citaExistente.setSala(citaDatosNuevos.getSala());
-        citaExistente.setFecha(citaDatosNuevos.getFecha());
-        citaExistente.setHoraInicio(citaDatosNuevos.getHoraInicio());
-        citaExistente.setNotas(citaDatosNuevos.getNotas());
+        // 2. SI CAMBIA EL SERVICIO, RECALCULAR TODO
+        if (!citaExistente.getServicio().getId().equals(datos.getServicio().getId())) {
+            Servicio nuevoServicio = servicioRepository.findById(datos.getServicio().getId())
+                    .orElseThrow(() -> new RuntimeException("Servicio no existe"));
+            citaExistente.setServicio(nuevoServicio);
 
-        // 3. Lógica inteligente: Si cambia el servicio, actualizamos precio y recalculamos hora fin
-        if (!citaExistente.getServicio().getId().equals(citaDatosNuevos.getServicio().getId())) {
-            citaExistente.setServicio(citaDatosNuevos.getServicio()); // Asignamos nuevo servicio
-            // Recalcular precio si no se ha forzado uno nuevo manualmente
-            if (citaDatosNuevos.getPrecioPagado() == null) {
-                // Aquí deberías buscar el servicio en BD para sacar el precio real,
-                // por simplicidad asumimos que viene o lo mantenemos.
-                // Lo ideal: recuperar Servicio de repository y poner su precio.
+            // Si no se fuerza un precio manual, ponemos el del servicio
+            if (datos.getPrecioPagado() == null) {
+                citaExistente.setPrecioPagado(nuevoServicio.getPrecio());
             }
         }
 
-        // Si viene un precio nuevo explícito, lo ponemos
-        if (citaDatosNuevos.getPrecioPagado() != null) {
-            citaExistente.setPrecioPagado(citaDatosNuevos.getPrecioPagado());
+        // Permitir sobreescribir precio manualmente si viene en el JSON
+        if (datos.getPrecioPagado() != null) {
+            citaExistente.setPrecioPagado(datos.getPrecioPagado());
         }
 
-        // 4. Recalcular Hora Fin obligatoriamente (por si cambió hora inicio o servicio)
-        // Necesitamos saber la duración del servicio actual
-        // (Hibernate ya habrá traído el objeto Servicio completo al hacer el set arriba si usas .getReference,
-        // pero para asegurar, calculamos 1 hora o usamos la duración del servicio si lo tienes cargado).
-        int duracion = citaExistente.getServicio().getDuracionMinutos() != null ?
-                citaExistente.getServicio().getDuracionMinutos() : 60;
-
+        // 3. RECALCULAR HORA FIN (Siempre, por si cambió hora inicio o servicio)
+        int duracion = citaExistente.getServicio().getDuracionMinutos();
         citaExistente.setHoraFin(citaExistente.getHoraInicio().plusMinutes(duracion));
 
-        // 5. Guardar y devolver DTO
-        Cita citaGuardada = citaRepository.save(citaExistente);
-        return convertirACitaDTO(citaGuardada);
+        // 4. VALIDAR DISPONIBILIDAD (Excluyendo la propia cita actual)
+        validarDisponibilidad(
+                citaExistente.getFisioterapeuta().getId(),
+                citaExistente.getSala() != null ? citaExistente.getSala().getId() : null,
+                citaExistente.getFecha(),
+                citaExistente.getHoraInicio(),
+                citaExistente.getHoraFin(),
+                id // Pasamos ID para ignorar conflicto consigo misma
+        );
+
+        Cita guardada = citaRepository.save(citaExistente);
+        return convertirACitaDTO(guardada);
     }
 
     @Transactional(readOnly = true)
@@ -184,57 +194,106 @@ public class RecepcionistaService {
     }
 
     @Transactional(readOnly = true)
-    public List<String> obtenerHuecosLibres(LocalDate fecha, Long fisioterapeutaId, int duracionMinutos) {
+    public List<String> obtenerHuecosLibres(LocalDate fecha, Long fisioterapeutaId, Long salaId, int duracionMinutos) {
+        List<String> huecos = new ArrayList<>();
 
-        List<String> huecosLibres = new ArrayList<>();
+        // 1. Obtener Horario Clínica (1=Lunes, 7=Domingo)
+        int diaSemana = fecha.getDayOfWeek().getValue();
+        Optional<HorarioClinica> horario = horarioRepository.findByDiaSemana(diaSemana);
 
-        // 1. Obtener Horario según día de la semana (1=Mon, 7=Sun)
-        int diaSemanaNum = fecha.getDayOfWeek().getValue();
+        if (horario.isEmpty()) return huecos; // Clínica cerrada ese día
 
-        Optional<HorarioClinica> horarioOpt = horarioRepository.findByDiaSemana(diaSemanaNum);
+        LocalTime apertura = horario.get().getHoraApertura();
+        LocalTime cierre = horario.get().getHoraCierre();
+        int intervalo = 15; // Slots de 15 min
 
-        // Si NO hay registro en la tabla para este día (ej. Domingo en tu script), devolvemos vacío
-        if (horarioOpt.isEmpty()) {
-            return huecosLibres; // Clínica Cerrada
-        }
+        // 2. Cargar datos en memoria (Optimización para no hacer queries en el bucle)
+        // a) Citas del Fisio
+        List<Cita> citasFisio = citaRepository.findCitasFisioterapeutaEnFecha(fisioterapeutaId, fecha);
 
-        HorarioClinica horario = horarioOpt.get();
-        LocalTime apertura = horario.getHoraApertura();
-        LocalTime cierre = horario.getHoraCierre();
-        int intervaloMinutos = 15;
+        // b) Citas de la Sala (Solo si se seleccionó sala)
+        List<Cita> citasSala = (salaId != null)
+                ? citaRepository.findBySalaIdAndFecha(salaId, fecha)
+                : new ArrayList<>();
 
-        // 2. Obtener citas ya ocupadas
-        List<Cita> citasDelDia = citaRepository.findByFisioterapeutaIdAndFecha(fisioterapeutaId, fecha);
+        // c) Bloqueos del día (Globales y Personales)
+        List<BloqueoHorario> bloqueosDia = bloqueoRepository.encontrarBloqueos(
+                fisioterapeutaId,
+                fecha.atStartOfDay(),
+                fecha.atTime(23, 59, 59)
+        );
 
-        LocalTime horaActual = apertura;
+        // 3. Barrido de horas
+        LocalTime actual = apertura;
+        while (!actual.plusMinutes(duracionMinutos).isAfter(cierre)) {
+            LocalTime finSlot = actual.plusMinutes(duracionMinutos);
 
-        // 3. Bucle para buscar huecos
-        while (horaActual.plusMinutes(duracionMinutos).isBefore(cierre) || horaActual.plusMinutes(duracionMinutos).equals(cierre)) {
+            // Verificaciones booleanas
+            boolean fisioOcupado = haySolape(citasFisio, actual, finSlot, null);
+            boolean salaOcupada = (salaId != null) && haySolape(citasSala, actual, finSlot, null);
 
-            LocalTime finPotencial = horaActual.plusMinutes(duracionMinutos);
-            LocalDateTime fechaHoraInicio = LocalDateTime.of(fecha, horaActual);
+            boolean bloqueoEncontrado = false;
+            if (!fisioOcupado && !salaOcupada) {
+                // Verificar Bloqueos (requiere convertir a LocalDateTime)
+                LocalDateTime slotInicio = LocalDateTime.of(fecha, actual);
+                LocalDateTime slotFin = LocalDateTime.of(fecha, finSlot);
 
-            // A) Verificar si hay Cita solapada
-            boolean ocupadoPorCita = false;
-            for (Cita cita : citasDelDia) {
-                if (cita.getHoraInicio().isBefore(finPotencial) && cita.getHoraFin().isAfter(horaActual)) {
-                    ocupadoPorCita = true;
-                    break;
-                }
+                bloqueoEncontrado = bloqueosDia.stream().anyMatch(b ->
+                        b.getFechaInicio().isBefore(slotFin) && b.getFechaFin().isAfter(slotInicio)
+                );
             }
 
-            // B) Verificar si hay Bloqueo (Festivo o Vacaciones) en esa hora exacta
-            // Usamos el repositorio de bloqueos para ver si "cae" dentro de un rango bloqueado
-            boolean ocupadoPorBloqueo = !bloqueoRepository.encontrarBloqueos(fisioterapeutaId, fechaHoraInicio).isEmpty();
-
-            // Si está libre de citas Y libre de bloqueos/festivos
-            if (!ocupadoPorCita && !ocupadoPorBloqueo) {
-                huecosLibres.add(horaActual.toString());
+            // Si pasa todas las validaciones, es un hueco válido
+            if (!fisioOcupado && !salaOcupada && !bloqueoEncontrado) {
+                huecos.add(actual.toString());
             }
 
-            horaActual = horaActual.plusMinutes(intervaloMinutos);
+            actual = actual.plusMinutes(intervalo);
         }
 
-        return huecosLibres;
+        return huecos;
+    }
+
+    /**
+     * Valida si se puede agendar. Lanza RuntimeException si hay conflicto.
+     */
+    private void validarDisponibilidad(Long fisioId, Long salaId, LocalDate fecha, LocalTime inicio, LocalTime fin, Long idExcluir) {
+
+        // 1. Validar Fisioterapeuta
+        List<Cita> citasFisio = citaRepository.findCitasFisioterapeutaEnFecha(fisioId, fecha);
+        if (haySolape(citasFisio, inicio, fin, idExcluir)) {
+            throw new RuntimeException("El fisioterapeuta ya tiene una cita asignada en ese horario.");
+        }
+
+        // 2. Validar Sala
+        if (salaId != null) {
+            List<Cita> citasSala = citaRepository.findBySalaIdAndFecha(salaId, fecha);
+            if (haySolape(citasSala, inicio, fin, idExcluir)) {
+                throw new RuntimeException("La sala seleccionada está ocupada en ese horario.");
+            }
+        }
+
+        // 3. Validar Bloqueos / Festivos
+        List<BloqueoHorario> bloqueos = bloqueoRepository.encontrarBloqueos(
+                fisioId,
+                LocalDateTime.of(fecha, inicio),
+                LocalDateTime.of(fecha, fin)
+        );
+        if (!bloqueos.isEmpty()) {
+            throw new RuntimeException("Horario no disponible por festivo, vacaciones o bloqueo administrativo.");
+        }
+    }
+
+    /**
+     * Comprueba si hay intersección de horarios en una lista de citas.
+     * Algoritmo: (StartA < EndB) && (EndA > StartB)
+     */
+    private boolean haySolape(List<Cita> citas, LocalTime inicio, LocalTime fin, Long idExcluir) {
+        return citas.stream().anyMatch(c -> {
+            // Si estamos editando, ignoramos la cita original (idExcluir)
+            if (idExcluir != null && c.getId().equals(idExcluir)) return false;
+
+            return c.getHoraInicio().isBefore(fin) && c.getHoraFin().isAfter(inicio);
+        });
     }
 }
