@@ -5,7 +5,7 @@ export default {
    * Obtener perfil del usuario autenticado
    */
   async getPerfil() {
-    const response = await api.get("/api/perfil");
+    const response = await api.get("/perfil");
     return response.data;
   },
 
@@ -20,7 +20,7 @@ export default {
    * @param {string} [datos.newPassword] - Nueva contraseña (solo si se cambia contraseña)
    */
   async updatePerfil(datos) {
-    const response = await api.put("/api/perfil", datos);
+    const response = await api.put("/perfil", datos);
     return response.data;
   }
 };
