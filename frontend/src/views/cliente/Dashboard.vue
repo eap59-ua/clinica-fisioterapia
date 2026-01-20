@@ -117,6 +117,7 @@
           </button>
 
           <button
+            @click="$router.push('/cliente/editar-perfil')"
             class="group flex items-center gap-4 p-4 rounded-xl bg-gradient-to-br from-dark-50 to-dark-100 border border-dark-200 hover:shadow-soft transition-all duration-300"
           >
             <div class="w-12 h-12 bg-gradient-to-br from-dark-500 to-dark-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">

@@ -71,6 +71,12 @@ const router = createRouter({
       meta: { requiresAuth: true, role: "CLIENTE" },
     },
     {
+      path: "/cliente/editar-perfil",
+      name: "editar-perfil",
+      component: () => import("../views/cliente/EditarPerfil.vue"),
+      meta: { requiresAuth: true, role: "CLIENTE" },
+    },
+    {
       path: "/cliente/pago-exitoso",
       name: "pago-exitoso",
       component: () => import("../views/cliente/PagoExitoso.vue"),
