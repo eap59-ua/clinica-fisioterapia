@@ -179,7 +179,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import SelectorServicio from "@/components/cliente/SelectorServicio.vue";
 import SelectorFisioterapeuta from "@/components/cliente/SelectorFisioterapeuta.vue";
 import CalendarioReserva from "@/components/cliente/CalendarioReserva.vue";
@@ -189,6 +189,7 @@ import pagoService from "@/services/pagoService";
 import ModalPago from "@/components/cliente/ModalPago.vue";
 
 const router = useRouter();
+const route = useRoute();
 const steps = ["Servicio", "Profesional", "Fecha/Hora", "Confirmar"];
 const currentStep = ref(0);
 
@@ -232,6 +233,36 @@ onMounted(async () => {
         : [];
 
     console.log("RESERVA: Fisios tras filtrar:", fisioterapeutas.value);
+
+    // Pre-seleccionar servicio si viene en query params (desde página de Servicios)
+    const servicioIdParam = route.query.servicioId;
+    if (servicioIdParam) {
+      const servicioPreseleccionado = servicios.value.find(
+        (s) => s.id === Number(servicioIdParam)
+      );
+      if (servicioPreseleccionado) {
+        reserva.value.servicio = servicioPreseleccionado;
+        currentStep.value = 1; // Avanzar al paso de selección de profesional
+        console.log("RESERVA: Servicio preseleccionado:", servicioPreseleccionado);
+      }
+    }
+
+    // Pre-seleccionar fisioterapeuta si viene en query params (desde página de Equipo)
+    const fisioterapeutaIdParam = route.query.fisioterapeutaId;
+    if (fisioterapeutaIdParam) {
+      const fisioPreseleccionado = fisioterapeutas.value.find(
+        (f) => f.id === Number(fisioterapeutaIdParam)
+      );
+      if (fisioPreseleccionado) {
+        reserva.value.fisioterapeuta = fisioPreseleccionado;
+        // Si no hay servicio preseleccionado, quedarse en paso 0
+        // Si ya hay servicio, avanzar al paso 2 (fecha/hora)
+        if (reserva.value.servicio) {
+          currentStep.value = 2;
+        }
+        console.log("RESERVA: Fisioterapeuta preseleccionado:", fisioPreseleccionado);
+      }
+    }
   } catch (error) {
     console.error("RESERVA: Error en onMounted:", error);
   }

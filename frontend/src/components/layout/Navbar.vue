@@ -55,12 +55,47 @@
             Equipo
           </router-link>
           <router-link
-            to="/contacto"
+            to="/testimonios"
             class="px-4 py-2 rounded-xl text-dark-600 font-medium hover:text-primary-600 hover:bg-primary-50 transition-all duration-200"
             active-class="text-primary-600 bg-primary-50"
           >
-            Contacto
+            Testimonios
           </router-link>
+
+          <!-- Dropdown Más -->
+          <div class="relative" @mouseenter="dropdownOpen = true" @mouseleave="dropdownOpen = false">
+            <button
+              class="px-4 py-2 rounded-xl text-dark-600 font-medium hover:text-primary-600 hover:bg-primary-50 transition-all duration-200 inline-flex items-center gap-1"
+            >
+              Más
+              <svg class="w-4 h-4 transition-transform" :class="{ 'rotate-180': dropdownOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </button>
+            <div
+              v-show="dropdownOpen"
+              class="absolute top-full left-0 mt-1 w-48 bg-white rounded-xl shadow-soft-lg border border-dark-100 py-2 z-50"
+            >
+              <router-link
+                to="/sobre-nosotros"
+                class="block px-4 py-2.5 text-dark-600 hover:bg-primary-50 hover:text-primary-600 transition-all"
+              >
+                Sobre Nosotros
+              </router-link>
+              <router-link
+                to="/faq"
+                class="block px-4 py-2.5 text-dark-600 hover:bg-primary-50 hover:text-primary-600 transition-all"
+              >
+                Preguntas Frecuentes
+              </router-link>
+              <router-link
+                to="/contacto"
+                class="block px-4 py-2.5 text-dark-600 hover:bg-primary-50 hover:text-primary-600 transition-all"
+              >
+                Contacto
+              </router-link>
+            </div>
+          </div>
         </div>
 
         <!-- Auth Section -->
@@ -212,6 +247,27 @@
           Equipo
         </router-link>
         <router-link
+          to="/testimonios"
+          @click="mobileMenuOpen = false"
+          class="block px-4 py-3 rounded-xl text-dark-600 font-medium hover:bg-primary-50 hover:text-primary-600 transition-all"
+        >
+          Testimonios
+        </router-link>
+        <router-link
+          to="/sobre-nosotros"
+          @click="mobileMenuOpen = false"
+          class="block px-4 py-3 rounded-xl text-dark-600 font-medium hover:bg-primary-50 hover:text-primary-600 transition-all"
+        >
+          Sobre Nosotros
+        </router-link>
+        <router-link
+          to="/faq"
+          @click="mobileMenuOpen = false"
+          class="block px-4 py-3 rounded-xl text-dark-600 font-medium hover:bg-primary-50 hover:text-primary-600 transition-all"
+        >
+          Preguntas Frecuentes
+        </router-link>
+        <router-link
           to="/contacto"
           @click="mobileMenuOpen = false"
           class="block px-4 py-3 rounded-xl text-dark-600 font-medium hover:bg-primary-50 hover:text-primary-600 transition-all"
@@ -228,7 +284,7 @@
             @click="mobileMenuOpen = false"
             class="block px-4 py-3 rounded-xl text-dark-600 font-medium hover:bg-dark-50 transition-all text-center"
           >
-            Iniciar Sesión
+            Iniciar Sesion
           </router-link>
           <router-link
             to="/register"
@@ -254,6 +310,7 @@ import { useRouter } from "vue-router";
 const authStore = useAuthStore();
 const router = useRouter();
 const mobileMenuOpen = ref(false);
+const dropdownOpen = ref(false);
 
 const handleLogout = () => {
   authStore.logout();

@@ -20,7 +20,8 @@
       "Bash(PGPASSWORD=password psql:*)",
       "Bash(grep:*)",
       "Bash(npm run build:*)",
-      "Bash(gh pr create:*)"
+      "Bash(gh pr create:*)",
+      "Bash(git rebase:*)"
     ]
   }
 }
