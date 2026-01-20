@@ -6,6 +6,9 @@ import com.clinica.fisioterapia.entity.Usuario;
 import com.clinica.fisioterapia.repository.UsuarioRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping({"/perfil", "/api/perfil"})
 @RequiredArgsConstructor
@@ -81,21 +85,34 @@ public class PerfilController {
             usuario.setPassword(passwordEncoder.encode(request.getNewPassword()));
         }
 
-        Usuario updated = usuarioRepository.save(usuario);
+        try {
+            Usuario updated = usuarioRepository.save(usuario);
 
-        ProfileResponse response = ProfileResponse.builder()
-                .id(updated.getId())
-                .nombre(updated.getNombre())
-                .apellidos(updated.getApellidos())
-                .dni(updated.getDni())
-                .email(updated.getEmail())
-                .telefono(updated.getTelefono())
-                .rol(updated.getRol().name())
-                .createdAt(updated.getCreatedAt())
-                .updatedAt(updated.getUpdatedAt())
-                .build();
+            ProfileResponse response = ProfileResponse.builder()
+                    .id(updated.getId())
+                    .nombre(updated.getNombre())
+                    .apellidos(updated.getApellidos())
+                    .dni(updated.getDni())
+                    .email(updated.getEmail())
+                    .telefono(updated.getTelefono())
+                    .rol(updated.getRol().name())
+                    .createdAt(updated.getCreatedAt())
+                    .updatedAt(updated.getUpdatedAt())
+                    .build();
 
-        return ResponseEntity.ok(response);
+            return ResponseEntity.ok(response);
+        } catch (DataIntegrityViolationException e) {
+            log.error("Error de integridad al actualizar perfil: {}", e.getMessage());
+            Map<String, String> error = new HashMap<>();
+            if (e.getMessage() != null && e.getMessage().contains("email")) {
+                error.put("message", "El email ya está en uso por otro usuario");
+            } else if (e.getMessage() != null && e.getMessage().contains("telefono")) {
+                error.put("message", "El teléfono ya está en uso por otro usuario");
+            } else {
+                error.put("message", "Error al actualizar el perfil. Verifica que los datos sean correctos.");
+            }
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+        }
     }
 
     private Usuario getAuthenticatedUser() {
