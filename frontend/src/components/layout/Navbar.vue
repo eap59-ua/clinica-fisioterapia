@@ -104,18 +104,23 @@
           </div>
         </div>
 
-    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl border-b border-gray-100 shadow-sm transition-all duration-300">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-20 items-center"> <div class="flex items-center">
-            <router-link to="/" class="flex items-center gap-3 group">
-              <div class="w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg shadow-teal-500/20 group-hover:shadow-teal-500/40 transition-all duration-300">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                </svg>
-              </div>
-              <span class="font-display text-xl font-bold text-gray-800 hidden sm:block tracking-tight">FisioClínica</span>
+        <!-- Auth Section -->
+        <div class="flex items-center gap-3">
+          <template v-if="!authStore.isAuthenticated">
+            <router-link
+              to="/login"
+              class="hidden sm:inline-flex items-center px-4 py-2 text-dark-600 font-medium hover:text-primary-600 transition-colors"
+            >
+              Iniciar Sesión
             </router-link>
-          </div>
+            <router-link
+              to="/register"
+              class="inline-flex items-center gap-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white px-5 py-2.5 rounded-xl font-semibold shadow-soft hover:shadow-glow transition-all duration-300 hover:-translate-y-0.5"
+            >
+              <span class="hidden sm:inline">Registrarse</span>
+              <span class="sm:hidden">Registro</span>
+            </router-link>
+          </template>
 
           <template v-else>
             <!-- User Menu -->
@@ -159,11 +164,6 @@
                 </svg>
                 <span class="hidden sm:inline">Mi Panel</span>
               </router-link>
-              <router-link to="/register" class="btn-primary">
-                <span class="hidden sm:inline">Registrarse</span>
-                <span class="sm:hidden">Registro</span>
-              </router-link>
-            </template>
 
               <button
                 @click="handleLogout"
@@ -301,6 +301,8 @@
           </router-link>
         </div>
       </div>
+    </div>
+  </nav>
 
   <!-- Spacer for fixed navbar -->
   <div class="h-20"></div>
@@ -308,7 +310,7 @@
 
 <script setup>
 import { ref } from "vue";
-import { useAuthStore } from "@/stores/auth";
+import { useAuthStore } from "../../stores/auth";
 import { useRouter } from "vue-router";
 
 const authStore = useAuthStore();
@@ -322,19 +324,3 @@ const handleLogout = () => {
   router.push("/");
 };
 </script>
-
-<style scoped>
-/* Clases de utilidad para limpiar el HTML */
-.nav-link {
-  @apply px-4 py-2 rounded-xl text-gray-600 font-medium hover:text-teal-600 hover:bg-teal-50 transition-all duration-200;
-}
-.nav-link.router-link-active {
-  @apply text-teal-600 bg-teal-50 font-semibold;
-}
-.btn-primary {
-  @apply inline-flex items-center gap-2 bg-gradient-to-r from-teal-500 to-teal-600 text-white px-5 py-2.5 rounded-xl font-semibold shadow-lg shadow-teal-500/30 hover:shadow-teal-500/50 transition-all duration-300 hover:-translate-y-0.5;
-}
-.mobile-link {
-  @apply block px-4 py-3 rounded-xl text-gray-600 font-medium hover:bg-gray-50 hover:text-teal-600 transition-all;
-}
-</style>
