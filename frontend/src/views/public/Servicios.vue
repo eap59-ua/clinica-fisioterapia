@@ -97,15 +97,15 @@
               </div>
 
               <!-- CTA Button -->
-              <router-link
-                to="/register"
+              <button
+                @click="reservarServicio(servicio)"
                 class="group/btn mt-6 w-full bg-gradient-to-r from-primary-500 to-primary-600 text-white py-3.5 rounded-xl font-semibold shadow-soft hover:shadow-glow transition-all duration-300 flex items-center justify-center gap-2 hover:-translate-y-0.5"
               >
                 Reservar Ahora
                 <svg class="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
                 </svg>
-              </router-link>
+              </button>
             </div>
           </div>
         </div>
@@ -158,10 +158,32 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "../../stores/auth";
 import publicService from "../../services/publicService";
+
+const router = useRouter();
+const authStore = useAuthStore();
 
 const servicios = ref([]);
 const loading = ref(true);
+
+const reservarServicio = (servicio) => {
+  if (authStore.isAuthenticated && authStore.userRole === 'CLIENTE') {
+    // Usuario autenticado como cliente: ir a reservar con servicio preseleccionado
+    router.push({
+      path: '/cliente/reservar-cita',
+      query: { servicioId: servicio.id }
+    });
+  } else if (authStore.isAuthenticated) {
+    // Usuario autenticado pero no es cliente
+    alert('Solo los clientes pueden reservar citas. Por favor, registra una cuenta de cliente.');
+    router.push('/register');
+  } else {
+    // Usuario no autenticado: ir a login
+    router.push('/login');
+  }
+};
 
 onMounted(async () => {
   try {
