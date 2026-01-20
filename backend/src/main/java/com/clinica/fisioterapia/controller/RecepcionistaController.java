@@ -1,6 +1,7 @@
 package com.clinica.fisioterapia.controller;
 
 import com.clinica.fisioterapia.dto.CitaDTO;
+import com.clinica.fisioterapia.dto.FisioterapeutaDTO;
 import com.clinica.fisioterapia.entity.*;
 import com.clinica.fisioterapia.repository.ClienteRepository;
 import com.clinica.fisioterapia.repository.FisioterapeutaRepository;
@@ -79,7 +80,28 @@ public class RecepcionistaController {
     public List<Cliente> getClientes() { return clienteRepository.findAll(); }
 
     @GetMapping("/fisioterapeutas")
-    public List<Fisioterapeuta> getFisios() { return fisioterapeutaRepository.findAll(); }
+    public ResponseEntity<List<FisioterapeutaDTO>> getFisios() {
+
+        List<Fisioterapeuta> entidades = fisioterapeutaRepository.findAll();
+
+        // 2. Transforma la lista de Entidades a DTOs
+        List<FisioterapeutaDTO> dtos = entidades.stream()
+                .map(fisio -> new FisioterapeutaDTO(
+                        fisio.getId(),
+                        fisio.getNombre(),
+                        fisio.getApellidos(),
+                        fisio.getEmail(),
+                        fisio.getTelefono(),
+                        fisio.getEspecialidades(),
+                        fisio.getNumeroColegiado(),
+                        fisio.getFotoUrl(),
+                        fisio.getValoracionPromedio(),
+                        fisio.getBiografia()
+                ))
+                .toList();
+
+        return ResponseEntity.ok(dtos);
+    }
 
     @GetMapping("/servicios")
     public List<Servicio> getServicios() { return servicioRepository.findAll(); }
