@@ -92,15 +92,15 @@
               </p>
 
               <!-- CTA Button -->
-              <router-link
-                to="/register"
+              <button
+                @click="solicitarCita(fisio)"
                 class="group/btn w-full bg-gradient-to-r from-secondary-500 to-primary-600 text-white py-3.5 rounded-xl font-semibold shadow-soft hover:shadow-glow transition-all duration-300 flex items-center justify-center gap-2 hover:-translate-y-0.5"
               >
                 Solicitar Cita
                 <svg class="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
                 </svg>
-              </router-link>
+              </button>
             </div>
           </div>
         </div>
@@ -161,7 +161,12 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "../../stores/auth";
 import publicService from "../../services/publicService";
+
+const router = useRouter();
+const authStore = useAuthStore();
 
 const fisioterapeutas = ref([]);
 const loading = ref(true);
@@ -173,6 +178,23 @@ const getAvatarUrl = (fisio) => {
   const colorIndex = fisio.id % colors.length;
   const bgColor = colors[colorIndex];
   return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&size=300&background=${bgColor}&color=ffffff&bold=true&format=svg`;
+};
+
+const solicitarCita = (fisio) => {
+  if (authStore.isAuthenticated && authStore.userRole === 'CLIENTE') {
+    // Usuario autenticado como cliente: ir a reservar con fisioterapeuta preseleccionado
+    router.push({
+      path: '/cliente/reservar-cita',
+      query: { fisioterapeutaId: fisio.id }
+    });
+  } else if (authStore.isAuthenticated) {
+    // Usuario autenticado pero no es cliente
+    alert('Solo los clientes pueden reservar citas. Por favor, registra una cuenta de cliente.');
+    router.push('/register');
+  } else {
+    // Usuario no autenticado: ir a login
+    router.push('/login');
+  }
 };
 
 onMounted(async () => {

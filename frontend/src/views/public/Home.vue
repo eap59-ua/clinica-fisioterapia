@@ -43,6 +43,28 @@
                 Ver Servicios
               </router-link>
             </div>
+
+            <!-- Stats para móvil - visible solo en pantallas pequeñas -->
+            <div class="grid grid-cols-2 gap-4 mt-10 lg:hidden">
+              <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-center border border-white/20">
+                <div class="flex items-center justify-center gap-2 mb-1">
+                  <svg class="w-5 h-5 text-accent-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                  <span class="text-2xl font-bold text-white">+500</span>
+                </div>
+                <p class="text-sm text-primary-200">Pacientes felices</p>
+              </div>
+              <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-center border border-white/20">
+                <div class="flex items-center justify-center gap-2 mb-1">
+                  <svg class="w-5 h-5 text-accent-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                  </svg>
+                  <span class="text-2xl font-bold text-white">4.9</span>
+                </div>
+                <p class="text-sm text-primary-200">Valoración media</p>
+              </div>
+            </div>
           </div>
 
           <!-- Hero Image/Illustration -->
@@ -78,9 +100,9 @@
               </div>
 
               <!-- Main Card -->
-              <div class="bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20">
-                <div class="aspect-square rounded-2xl bg-gradient-to-br from-white/20 to-white/5 flex items-center justify-center">
-                  <svg class="w-32 h-32 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="bg-white/10 backdrop-blur-md rounded-3xl p-6 border border-white/20">
+                <div class="aspect-square max-w-[200px] mx-auto rounded-2xl bg-gradient-to-br from-white/20 to-white/5 flex items-center justify-center">
+                  <svg class="w-20 h-20 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
                   </svg>
                 </div>

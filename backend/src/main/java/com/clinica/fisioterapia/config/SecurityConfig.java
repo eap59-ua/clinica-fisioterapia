@@ -4,6 +4,7 @@ import com.clinica.fisioterapia.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -51,6 +52,8 @@ public class SecurityConfig {
                         .requestMatchers("/recepcionista/**").hasAnyRole("RECEPCIONISTA", "ADMIN")
                         .requestMatchers("/fisioterapeuta/**").hasAnyRole("FISIOTERAPEUTA", "ADMIN")
                         .requestMatchers("/cliente/**").hasAnyRole("CLIENTE", "ADMIN")
+                        .requestMatchers(HttpMethod.GET,  "/pagos/callback", "/pagos/callback/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/pagos/callback", "/pagos/callback/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

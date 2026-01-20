@@ -32,6 +32,17 @@
           <p class="font-mono text-2xl font-bold text-primary-600">#{{ citaId }}</p>
         </div>
 
+        <div v-if="saldoAntes !== null" class="bg-dark-50 rounded-xl p-4 mb-6">
+          <p class="text-xs text-dark-400 mb-1">Monedero virtual (demo)</p>
+          <div class="flex justify-between text-sm">
+            <span>Saldo antes</span><span class="font-mono">{{ saldoAntes }} €</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span>Saldo después</span><span class="font-mono font-bold">{{ saldoDespues }} €</span>
+          </div>
+        </div>
+
+
         <!-- Transaction Info -->
         <div v-if="transactionId" class="bg-dark-50 rounded-xl p-4 mb-6">
           <p class="text-xs text-dark-400 mb-1">ID de transacción</p>
@@ -66,10 +77,32 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
 const citaId = computed(() => route.query.citaId)
 const transactionId = computed(() => route.query.transactionId)
+
+// ✅ Monedero virtual (demo)
+const saldoAntes = ref(null)
+const saldoDespues = ref(null)
+
+onMounted(() => {
+  const pendingRaw = sessionStorage.getItem("pendingPayment")
+  if (!pendingRaw) return
+
+  const pending = JSON.parse(pendingRaw) // { citaId, amount }
+
+  // saldo inicial si no existe (demo)
+  const current = Number(localStorage.getItem("walletBalance") ?? "200")
+  saldoAntes.value = current
+
+  const after = Math.max(0, current - Number(pending.amount || 0))
+  saldoDespues.value = after
+  localStorage.setItem("walletBalance", String(after))
+
+  sessionStorage.removeItem("pendingPayment")
+})
 </script>
+

@@ -28,6 +28,21 @@ const router = createRouter({
       component: () => import("../views/public/Contacto.vue"),
     },
     {
+      path: "/testimonios",
+      name: "testimonios",
+      component: () => import("../views/public/Testimonios.vue"),
+    },
+    {
+      path: "/faq",
+      name: "faq",
+      component: () => import("../views/public/FAQ.vue"),
+    },
+    {
+      path: "/sobre-nosotros",
+      name: "sobre-nosotros",
+      component: () => import("../views/public/SobreNosotros.vue"),
+    },
+    {
       path: "/login",
       name: "login",
       component: () => import("../views/auth/Login.vue"),
